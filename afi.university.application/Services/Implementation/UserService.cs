@@ -39,6 +39,11 @@ namespace afi.university.application.Services.Implementation
 
             LoginResponseDto response = new()
             {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = user.Role,
                 Token = this.GenerateToken(user)
             };
 

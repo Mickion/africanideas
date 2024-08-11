@@ -8,6 +8,7 @@ using afi.university.api;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 //Add Jwt configuration
 #region JWT Configurations
 // Configure JWT authentication
@@ -52,6 +53,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseItToSeedSqlServer();    //custom extension method to seed the DB
 }
+
+app.UseCors(builder => builder
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .SetIsOriginAllowed((host) => true)
+    .AllowCredentials()
+);
 
 app.UseHttpsRedirection();
 
