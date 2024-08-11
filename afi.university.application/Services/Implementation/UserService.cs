@@ -1,0 +1,77 @@
+﻿using afi.university.application.Models.Responses;
+using afi.university.application.Services.Interfaces;
+using afi.university.domain.Common.Enums;
+using afi.university.domain.Common.Exceptions;
+using afi.university.domain.Entities.Base;
+using afi.university.domain.Repositories;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
+using System.IdentityModel.Tokens.Jwt;
+using afi.university.application.Models.Requests;
+
+namespace afi.university.application.Services.Implementation
+{
+    public class UserService : IUserService
+    {
+        private readonly IConfiguration _configuration;
+        private readonly IUserRepository _userRepository;
+        
+        public UserService(IUserRepository userRepository, IConfiguration configuration)
+        {
+            this._userRepository = userRepository;
+            this._configuration = configuration;
+        }
+
+        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto loginRequest)
+        {
+            if (string.IsNullOrWhiteSpace(loginRequest.Email)) 
+                throw new ArgumentException(nameof(loginRequest.Email));
+
+            if (string.IsNullOrWhiteSpace(loginRequest.Password))
+                throw new ArgumentException(nameof(loginRequest.Password));
+
+            User user = await _userRepository.GetUserLoginsAsync(loginRequest.Email, loginRequest.Password);
+
+            if(user == null)
+                throw new NotFoundException(nameof(user));
+
+            LoginResponseDto response = new()
+            {
+                Token = this.GenerateToken(user)
+            };
+
+            return response;
+        }
+
+        #region Private Implementation methods
+        private string GenerateToken(User user)
+        {
+            if (string.IsNullOrWhiteSpace(user.Email))
+                throw new ArgumentException(nameof(user.Email));
+
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JwtSettings:SecretKey"]));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Email),                
+                new Claim(ClaimTypes.Role, Enum.GetName(typeof(UserRole), user.Role))
+            };
+
+
+            var token = new JwtSecurityToken(
+                _configuration["JwtSettings:Issuer"],
+                _configuration["JwtSettings:Audience"],
+                claims,
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["JwtSettings:DurationInMinutes"])),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        #endregion
+    }
+}
