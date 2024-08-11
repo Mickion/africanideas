@@ -32,7 +32,7 @@ namespace afi.university.application.Services.Implementation
         /// <exception cref="ApplicationException"></exception>
         public async Task<List<StudentCoursesDto>> GetRegisteredCoursesAsync(int studentId)
         {
-            var student = await _studentRepository.GetByIdAsync(studentId) ?? throw new ApplicationException($"Faile to retrieve student ({studentId})");
+            var student = await _studentRepository.GetByIdAsync(studentId) ?? throw new ApplicationException($"Failed to retrieve student ({studentId})");
             
             if (student.Courses == null)
                 return new List<StudentCoursesDto>(); //Not registered courses yet
@@ -92,16 +92,16 @@ namespace afi.university.application.Services.Implementation
         /// <param name="courseIds"></param>
         /// <returns></returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<List<StudentCoursesDto>> UnregisterAsync(int studentId, List<int> courseIds)
+        public async Task<List<StudentCoursesDto>> UnregisterAsync(int studentId, List<StudentCoursesDto> courseRegistrationRequest)
         {
             var student = await _studentRepository.GetByIdAsync(studentId) ?? throw new ApplicationException($"Student ({studentId}) not registered for any course.");
             
             if (student.Courses == null)
                 throw new ApplicationException($"Student ({studentId}) not registered for any course.");
 
-            foreach (var courseId in courseIds)
+            foreach (var course in courseRegistrationRequest)
             {
-                var deleteCourse = student.Courses.SingleOrDefault(c => c.Id == courseId);
+                var deleteCourse = student.Courses.SingleOrDefault(c => c.Id == course.Id);
                 if(deleteCourse != null)
                     student.Courses.Remove(deleteCourse);
             }
@@ -113,6 +113,35 @@ namespace afi.university.application.Services.Implementation
             // refresh registered courses
             return await this.GetRegisteredCoursesAsync(studentId);
         }
+
+
+        /// <summary>
+        /// Gets all registered students
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ApplicationException"></exception>
+        public async Task<List<StudentsResponseDto>> GetAllUniversityStudentsAsync()
+        {
+            var students = await _studentRepository.GetAllAsync() ?? throw new ApplicationException($"Failed to retrieve students");
+
+            List<StudentsResponseDto> response=new();
+            foreach (var student in students)
+            {
+                response.Add(
+                    new StudentsResponseDto
+                    {
+                        Id = student.Id,
+                        StudentNumber = student.StudentNumber,
+                        FirstName = student.FirstName,
+                        LastName = student.LastName,                        
+                        Email = student.Email
+                    }
+                );
+            }
+
+            return response;
+        }
+
 
         #region Private Implementations
         /// <summary>
@@ -173,6 +202,8 @@ namespace afi.university.application.Services.Implementation
         {            
             return $"{firstname.Substring(0, 3)} {lastname.Substring(lastname.Length - 4, 3)}";
         }
+
+
         #endregion
     }
 }

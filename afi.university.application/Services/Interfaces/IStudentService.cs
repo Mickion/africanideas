@@ -20,6 +20,12 @@ namespace afi.university.application.Services.Interfaces
         Task<List<StudentCoursesDto>> RegisterToACourseAsync(int studentId, List<StudentCoursesDto> courseRegistrationRequest);
 
         /// <summary>
+        /// Unregister a specific course
+        /// </summary>
+        /// <returns></returns>
+        Task<List<StudentCoursesDto>> UnregisterAsync(int studentId, List<StudentCoursesDto> courseRegistrationRequest);
+
+        /// <summary>
         /// Gets all registered course for student
         /// </summary>
         /// <param name="id"></param>
@@ -27,9 +33,9 @@ namespace afi.university.application.Services.Interfaces
         Task<List<StudentCoursesDto>> GetRegisteredCoursesAsync(int studentId);
 
         /// <summary>
-        /// Unregister a specific course
+        /// Gets all University students
         /// </summary>
         /// <returns></returns>
-        Task<List<StudentCoursesDto>> UnregisterAsync(int studentId, List<int> courseIds);
+        Task<List<StudentsResponseDto>> GetAllUniversityStudentsAsync();
     }
 }

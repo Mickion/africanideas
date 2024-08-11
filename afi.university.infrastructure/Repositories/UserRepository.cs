@@ -19,8 +19,9 @@ namespace afi.university.infrastructure.Repositories
 
         public UserRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
-            this._dbContext = dbContext;
+            this._dbContext = dbContext;      
         }
+
         public override async Task<User> GetByIdAsync(int id)
         {
             var user = _dbContext.Users?
@@ -40,6 +41,11 @@ namespace afi.university.infrastructure.Repositories
 
             await Task.CompletedTask;
             return user ?? throw new NotFoundException($"User ({username}) not found.");
+        }
+
+        private void FeedDefaultAdmin()
+        {
+
         }
     }
 }

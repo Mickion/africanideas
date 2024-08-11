@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace afi.university.api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
+    [ApiController]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -16,24 +17,34 @@ namespace afi.university.api.Controllers
         {
             this._userService = userService;
         }
-        [HttpGet(Name = "Login")]
+
+        /// <summary>
+        /// Login to application
+        /// </summary>
+        /// <param name="loginRequest"></param>
+        /// <returns></returns>
+        [HttpPost(Name = "Login")]
         public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto loginRequest)
         {
-            LoginResponseDto results;
+            LoginResponseDto response;
             try
             {
-                results = await _userService.LoginAsync(loginRequest);
+                response = await _userService.LoginAsync(loginRequest);
             }
-            catch (NotFoundException)
+            catch (NotFoundException ex)
             {
-                return Unauthorized();
+                return Unauthorized(ex.Message);
+            }
+            catch (domain.Common.Exceptions.NotFoundException)
+            {
+                return Unauthorized("Invalid login details");
             }
 
-            if(results == null) return Unauthorized();
+            if(response == null) return Unauthorized();
             
-            if (string.IsNullOrWhiteSpace(results.Token)) return Unauthorized();
+            if (string.IsNullOrWhiteSpace(response.Token)) return Unauthorized();
 
-            return Ok(results);
+            return Ok(response);
         }
     }
 }
