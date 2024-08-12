@@ -16,5 +16,14 @@ namespace afi.university.infrastructure.Persistence
         public DbSet<User>? Users { get; set; }
         public DbSet<Student>? Students { get; set; }
         public DbSet<Course>? Courses { get; set; }
+        public DbSet<StudentCourse>? StudentCourses { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<StudentCourse>()
+                .HasKey(studentCourse => new { studentCourse.StudentId, studentCourse.CourseId });
+        }
     }
 }

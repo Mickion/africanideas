@@ -1,46 +1,19 @@
 ﻿@page "/"
-
 @attribute [Authorize]
-@inject IStudentService StudentService
-@inject ICourseService CourseService
 @inject IAuthenticationService AuthenticationService
 
-<div class="card mt-4">
-    <h4 class="card-header">You're logged in with Blazor WebAssembly & JWT!!</h4>
-@*     <div class="card-body">
-        <h6>Users from secure api end point</h6>
-        @if (loading)
-        {
-            <div class="spinner-border spinner-border-sm"></div>
-        }
-        @if (users != null)
-        {
-            <ul>
-                @foreach (var user in users)
-                {
-                    <li>@user.FirstName @user.LastName</li>
-                }
-            </ul>
-        }
-    </div> *@
+<div class="row">
+    <h6>@AuthenticationService.User.Role Dashboard</h6>
+    @if (AuthenticationService.User.Role == Roles.Admin)
+    {
+        <AdminDashboard></AdminDashboard>
+    }
+    else
+    {
+        <StudentDashboard></StudentDashboard>
+    }    
 </div>
 
 @code {
-    private bool loading;
-    private IEnumerable<StudentCourses> studentCourses;
 
-    protected override async Task OnInitializedAsync()
-    {
-        loading = true;
-        // if (AuthenticationService.User.Role == Roles.Admin)
-        // {
-        //     studentCourses = await CourseService.GetAllUniversityCourses();
-        // }
-        // else
-        // {
-        //     studentCourses = await StudentService.GetRegisteredCoursesAsync(AuthenticationService.User.Id);
-        // }
-        
-        loading = false;
-    }
 }

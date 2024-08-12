@@ -18,8 +18,7 @@ namespace afi.university.infrastructure.Repositories
 
         public override async Task<IEnumerable<Course>> GetAllAsync()
         {
-            var courses = _dbContext.Courses?
-                    .Include(a => a.Students);
+            var courses = _dbContext.Courses;                    
 
             await Task.CompletedTask;
             return courses ?? throw new NotFoundException("Courses not found.");
@@ -28,13 +27,22 @@ namespace afi.university.infrastructure.Repositories
         public override async Task<Course> GetByIdAsync(int id)
         {
             var course = _dbContext.Courses?
-                .Where(cr => cr.Id.ToString() == id.ToString())
-                .Include(a => a.Students)
+                .Where(cr => cr.Id == id)
                 .FirstOrDefault();
 
             await Task.CompletedTask;
             return course ?? throw new NotFoundException($"Course id ({id}) not found.");
 
+        }
+
+        public async Task<Course> GetCourseByNameAsync(string courseName)
+        {
+            var course = _dbContext.Courses?
+                .Where(cr => cr.Name == courseName)
+                .FirstOrDefault();
+
+            await Task.CompletedTask;
+            return course ?? throw new NotFoundException($"Course name ({courseName}) not found.");
         }
     }
 }

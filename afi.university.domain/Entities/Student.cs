@@ -9,10 +9,5 @@ namespace afi.university.domain.Entities
         /// </summary>
         public string? StudentNumber { get; set; }
 
-
-        /// <summary>
-        /// Gets or sets a list of courses this student is enrolled in
-        /// </summary>
-        public List<Course>? Courses { get; set; }
     }
 }

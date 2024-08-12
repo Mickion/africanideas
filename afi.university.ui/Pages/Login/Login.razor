@@ -1,21 +1,24 @@
 ﻿@page "/login"
 @using System.ComponentModel.DataAnnotations
-
-@inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
+@inject IAuthenticationService AuthenticationService
+
 
 <div class="col-md-6 offset-md-3 mt-5">
     <div class="alert alert-info">
-        Username: test@testc.com<br />
-        Password: test
+@*         Admin Account <br />
+        Username: test@test.com<br />
+        Password: test *@
+        <div class="row">
+            <h6 class="text-center">AfricanIdeas University of Technology</h6>
+        </div>
     </div>
     <div class="card">
-        <h4 class="card-header">Blazor WebAssembly JWT Login Example</h4>
         <div class="card-body">
             <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
                 <DataAnnotationsValidator />
                 <div class="form-group">
-                    <label>Username</label>
+                    <label>Email</label>
                     <InputText @bind-Value="model.Email" class="form-control" />
                     <ValidationMessage For="@(() => model.Email)" />
                 </div>
@@ -24,13 +27,23 @@
                     <InputText @bind-Value="model.Password" type="password" class="form-control" />
                     <ValidationMessage For="@(() => model.Password)" />
                 </div>
-                <button class="btn btn-primary">
-                    @if (loading)
-                    {
-                        <span class="spinner-border spinner-border-sm mr-1"></span>
-                    }
-                    Login
-                </button>
+                <div class="row mt-3">
+                    <div class="col-8"></div>
+                    <div class="col-2 float-end">
+                        <a href="/student/registration" class="btn btn-primary btn-md active float-end" role="button" aria-pressed="true">Register</a>
+                    </div>
+                    <div class="col-2 float-end">
+                        <button class="btn btn-primary float-end">
+                            @if (loading)
+                            {
+                                <span class="spinner-border spinner-border-sm mr-1"></span>
+                            }
+                            Login
+                        </button>
+                    </div>
+                </div>
+
+                
                 @if (!string.IsNullOrEmpty(error))
                 {
                     <div class="alert alert-danger mt-3 mb-0">@error</div>

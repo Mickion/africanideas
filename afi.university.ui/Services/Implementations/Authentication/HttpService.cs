@@ -58,10 +58,10 @@ namespace afi.university.ui.Services.Implementations.Authentication
             // add jwt auth header if user is logged in and request is to the api url
             var user = await _localStorageService.GetItem<User>("user");
 
-            var isApiUrl = !request.RequestUri!.IsAbsoluteUri;
+            //var isApiUrl = !request.RequestUri!.IsAbsoluteUri;
 
-            if (user != null && isApiUrl)
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer ", user.Token);
+            if (user != null)
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.Token);
 
             using var response = await _httpClient.SendAsync(request);
 
@@ -79,6 +79,7 @@ namespace afi.university.ui.Services.Implementations.Authentication
                 throw new Exception(error["message"]);
             }
 
+            
             return await response.Content.ReadFromJsonAsync<T>();
         }
 

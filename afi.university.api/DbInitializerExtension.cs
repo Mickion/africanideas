@@ -1,4 +1,5 @@
 ﻿using afi.university.domain.Common.Enums;
+using afi.university.domain.Entities;
 using afi.university.domain.Entities.Base;
 using afi.university.infrastructure.Persistence;
 
@@ -29,16 +30,27 @@ namespace afi.university.api
         {
             ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
             dbContext.Database.EnsureCreated();
-            if (dbContext.Users.Any()) return;
+            if (dbContext.Users!.Any()) return;
 
-            var users = new User[]
+            var users = new Student[]
             {
-                new User{ Id = 1, FirstName = "Mickion", LastName="Mazibuko", Email="test@test.com", Password="test", Role=UserRole.Admin }
-            //add other users
+               new Student{ Id = 1, FirstName = "Mickion", LastName="Mazibuko", Email="mickion.mtshali@gmail.com", Password="test", Role=UserRole.Admin, StudentNumber="" }            
             };
 
             foreach (var user in users)
-                dbContext.Users.Add(user);
+                dbContext.Students!.Add(user);
+
+            dbContext.SaveChanges();
+
+            var courses = new Course[]
+            {
+                new Course{ Id = 1, Name="ND: Information Technology", Duration=3},
+                new Course{ Id = 2, Name="BSC Human Resources", Duration=4},
+                new Course{ Id = 3, Name="MBA Business Management", Duration=6}
+            };
+
+            foreach (var course in courses)
+                dbContext.Courses!.Add(course);
 
             dbContext.SaveChanges();
         }

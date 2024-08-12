@@ -1,0 +1,110 @@
+﻿@attribute [Authorize]
+@inject IStudentService StudentService
+@inject NavigationManager NavigationManager
+@inject IAuthenticationService AuthenticationService
+
+@if (loading)
+{
+    <div class="spinner-border spinner-border-sm"></div>
+}
+else
+{
+    if (_myCourses!.Count() > 0)
+    {
+        <table class="table small table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Duration</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in _myCourses!)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Duration</td>
+                        <td>
+                            @if (item.Registered)
+                            {
+                                <span class="oi oi-circle-check" aria-hidden="true" style="color: green !important;"></span>
+                            }
+                            else
+                            {
+                                <span class="oi oi-circle-x" aria-hidden="true" style="color:red !important"></span>
+                            }
+
+                        </td>
+                        <td>
+                            @if (item.Registered)
+                            {
+                                <button class="btn btn-primary float-end" @onclick="e => ClickHandler(item.Id)">De-Register</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary float-end" @onclick="e => ClickHandler(item.Id)">Register</button>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="align-content-center" style="text-align:center;">You have not enrolled for any courses. Please click on "Enroll tab to register course" </p>
+    }
+}
+
+@code {
+    private bool loading;
+    private IEnumerable<StudentCourses>? _myCourses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        _myCourses = await StudentService.GetRegisteredCoursesAsync(new StudentCoursesRequest() { StudentId = AuthenticationService.User.Id });
+        loading = false;
+    }
+
+    private async void ClickHandler(int courseId)
+    {
+        var course = _myCourses!.FirstOrDefault(x => x.Id == courseId);
+        course!.Registered = !course.Registered;
+
+        if (course!.Registered)
+        {
+            CourseRegistrationRequest courseRegistration = new()
+                {
+                    StudentId = AuthenticationService.User.Id,
+                    Name = course.Name,
+                    Duration = course.Duration,
+                };
+            var response = await StudentService.RegisterToACourseAsync(courseRegistration);
+            StateHasChanged();
+            //LoadStudentDashboard();
+        }
+        else
+        {   
+            CourseRegistrationRequest courseRegistration = new()
+                {
+                    StudentId = AuthenticationService.User.Id,
+                    Name = course.Name,
+                    Duration = course.Duration,
+                };
+            var response = await StudentService.RegisterToACourseAsync(courseRegistration);
+            StateHasChanged();
+            //LoadStudentDashboard();
+        }
+    }
+
+    private async void LoadStudentDashboard()
+    {
+        loading = true;
+        _myCourses = await StudentService.GetRegisteredCoursesAsync(new StudentCoursesRequest() { StudentId = AuthenticationService.User.Id });
+        loading = false;
+    }
+}

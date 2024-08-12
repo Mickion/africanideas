@@ -1,0 +1,99 @@
+﻿@page "/student/enroll"
+
+@attribute [Authorize]
+@inject ICourseService CourseService
+@inject IStudentService StudentService
+@inject IAuthenticationService AuthenticationService
+
+@if (loading)
+{
+    <div class="spinner-border spinner-border-sm"></div>
+}
+else
+{
+    if (_courses!.Count() > 0)
+    {
+        <table class="table small table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Duration</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in _courses!)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Duration</td>
+                        <td>
+                            @if (item.Registered)
+                            {
+                                <span class="oi oi-circle-check" aria-hidden="true" style="color: green !important;"></span>
+                            }
+                            else
+                            {
+                                <span class="oi oi-circle-x" aria-hidden="true" style="color:red !important"></span>
+                            }
+
+                        </td>
+                        <td>
+                            @if (item.Registered)
+                            {
+                                <button class="btn btn-primary float-end" @onclick="e => ClickHandler(item.Id)">De-Register</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary float-end" @onclick="e => ClickHandler(item.Id)">Register</button>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private bool loading;    
+    private IEnumerable<StudentCourses>? _courses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        _courses = await CourseService.GetAllUniversityCourses();
+        loading = false;
+    }
+
+    private async void ClickHandler(int courseId)
+    {
+        var course = _courses!.FirstOrDefault(x => x.Id == courseId);
+
+        course!.Registered = !course.Registered;
+
+        if (course!.Registered)
+        {
+            CourseRegistrationRequest courseRegistration = new()
+                {
+                    StudentId = AuthenticationService.User.Id,
+                    Name = course.Name,
+                    Duration = course.Duration,
+                };
+            var response = await StudentService.RegisterToACourseAsync(courseRegistration);
+        }
+        else
+        {
+            CourseRegistrationRequest courseRegistration = new()
+                {
+                    StudentId = AuthenticationService.User.Id,
+                    Name = course.Name,
+                    Duration = course.Duration,
+                };
+            var response = await StudentService.RegisterToACourseAsync(courseRegistration);
+        }
+
+    }
+}

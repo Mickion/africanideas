@@ -14,7 +14,7 @@ namespace afi.university.infrastructure.Repositories.Base
             this._dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<int> CreateAsync(TEntity entity)
+        public virtual async Task<int> CreateAsync(TEntity entity)
         {
             _dbContext.Set<TEntity>().Add(entity);            
             return await _dbContext.SaveChangesAsync();            

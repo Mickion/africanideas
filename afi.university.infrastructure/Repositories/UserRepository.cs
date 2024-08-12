@@ -25,7 +25,7 @@ namespace afi.university.infrastructure.Repositories
         public override async Task<User> GetByIdAsync(int id)
         {
             var user = _dbContext.Users?
-                .Where(cr => cr.Id.ToString() == id.ToString())                
+                .Where(cr => cr.Id == id)                
                 .FirstOrDefault();
 
             await Task.CompletedTask;
@@ -35,17 +35,12 @@ namespace afi.university.infrastructure.Repositories
 
         public async Task<User> GetUserLoginsAsync(string username, string password)
         {
-            var user = _dbContext.Users?
+            var user = _dbContext.Students?
                 .Where(cr => cr.Email == username && cr.Password == password)
                 .FirstOrDefault();
 
             await Task.CompletedTask;
             return user ?? throw new NotFoundException($"User ({username}) not found.");
-        }
-
-        private void FeedDefaultAdmin()
-        {
-
         }
     }
 }

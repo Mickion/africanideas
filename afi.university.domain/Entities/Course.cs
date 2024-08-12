@@ -14,9 +14,5 @@ namespace afi.university.domain.Entities
         /// </summary>
         public int Duration { get; set; } = 3; //Default 3 years
 
-        /// <summary>
-        /// Gets or sets list of students registered to this course
-        /// </summary>
-        public List<Student>? Students { get; set; }
     }
 }

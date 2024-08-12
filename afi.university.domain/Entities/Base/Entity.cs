@@ -9,7 +9,7 @@ namespace afi.university.domain.Entities.Base
         /// Gets or sets Id
         /// </summary>
         [Key]                
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
     }

@@ -3,25 +3,24 @@ using afi.university.application.Models.Responses;
 using afi.university.application.Services.Interfaces;
 using afi.university.domain.Common.Enums;
 using afi.university.domain.Entities;
-using afi.university.domain.Entities.Base;
 using afi.university.domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace afi.university.application.Services.Implementation
 {
     public class StudentService : IStudentService
-    {
-        private readonly IUserRepository _userRepository;
+    {        
+        private readonly ICourseRepository _courseRepository;
+        private readonly IStudentCourseRepository _studentCourseRepository;
         private readonly IStudentRepository _studentRepository;
         
-        public StudentService(IStudentRepository studentRepository, IUserRepository userRepository)
+        public StudentService(
+            ICourseRepository courseRepository,
+            IStudentRepository studentRepository,                         
+            IStudentCourseRepository studentCourseRepository)
         {
-            this._studentRepository = studentRepository;
-            this._userRepository = userRepository;
+            this._studentRepository = studentRepository;            
+            this._courseRepository = courseRepository;
+            this._studentCourseRepository = studentCourseRepository;
         }
 
         /// <summary>
@@ -30,17 +29,24 @@ namespace afi.university.application.Services.Implementation
         /// <param name="studentId"></param>
         /// <returns></returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<List<StudentCoursesDto>> GetRegisteredCoursesAsync(int studentId)
+        public async Task<List<StudentCoursesDto>> GetRegisteredCoursesAsync(StudentCoursesRequestDto studentCoursesRequest)
         {
-            var student = await _studentRepository.GetByIdAsync(studentId) ?? throw new ApplicationException($"Failed to retrieve student ({studentId})");
-            
-            if (student.Courses == null)
-                return new List<StudentCoursesDto>(); //Not registered courses yet
-
             List<StudentCoursesDto> studentCourses = new();
-            foreach (var course in student.Courses)
+            
+            var courses = await _studentCourseRepository.GetCoursesByStudentIdAsync(studentCoursesRequest.StudentId);
+
+            foreach (var course in courses)
             {
-                studentCourses.Add(new StudentCoursesDto() { Id=course.Id, Name = course.Name, Duration = course.Duration, Registered=true });
+                var cr = await _courseRepository.GetByIdAsync(course.CourseId);
+                studentCourses.Add(
+                    new StudentCoursesDto()
+                    {
+                        Id = cr.Id,
+                        Name = cr.Name,
+                        Duration = cr.Duration,
+                        Registered = true
+                    }
+                );
             }
 
             return studentCourses;
@@ -54,9 +60,8 @@ namespace afi.university.application.Services.Implementation
         public async Task<StudentRegistrationResponseDto> RegisterToUniversityAsync(StudentRegistrationRequestDto registrationRequest)
         {
             var user = await CreateAccountAsync(registrationRequest);
-            var response = await CreateAccountAsync(user);
 
-            return new StudentRegistrationResponseDto() { StudentNumber = response.StudentNumber };
+            return new StudentRegistrationResponseDto() { StudentNumber = GenerateStudentNumber(user.FirstName!, user.LastName!) };
         }
 
         /// <summary>
@@ -66,23 +71,28 @@ namespace afi.university.application.Services.Implementation
         /// <param name="courseRegistrationRequest"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<List<StudentCoursesDto>> RegisterToACourseAsync(int studentId, List<StudentCoursesDto> courseRegistrationRequest)
+        public async Task<bool> RegisterCourseAsync(CourseRegistrationRequestDto courseRegistration)
         {
-            var student = await _studentRepository.GetByIdAsync(studentId) ?? throw new ApplicationException($"Failed to retrieve student ({studentId})");
-            
-            student.Courses ??= new();
-            foreach (var course in courseRegistrationRequest)
-            {
-                student.Courses.Add(new Course() { Name=course.Name, Duration=course.Duration});
-                course.Registered = true;
-            }
-            
-            var response = await _studentRepository.UpdateAsync(student);
-            if(response > 0)
-                throw new ApplicationException($"Failed to register user ({student.Email}) to course");
+            var student = await _studentRepository.GetByIdAsync(courseRegistration.StudentId);
+            if (student == null) return false;
 
-            // refresh registered courses
-            return await this.GetRegisteredCoursesAsync(studentId);
+            var course = await _courseRepository.GetCourseByNameAsync(courseRegistration.Name!);
+            if (course == null) return false;
+
+            StudentCourse studentCourse = new()
+            {
+                StudentId = student.Id,
+                CourseId = course.Id,
+                Student = student,
+                Course = course
+            };
+
+            var response = await _studentCourseRepository.CreateAsync(studentCourse);
+
+            if(response == 0)
+                throw new ApplicationException($"Failed to register user ({student.Email}) to course {course.Name}");
+            
+            return true;
         }
 
         /// <summary>
@@ -92,26 +102,25 @@ namespace afi.university.application.Services.Implementation
         /// <param name="courseIds"></param>
         /// <returns></returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<List<StudentCoursesDto>> UnregisterAsync(int studentId, List<StudentCoursesDto> courseRegistrationRequest)
+        public async Task<bool> UnregisterAsync(CourseRegistrationRequestDto courseRegistration)
         {
-            var student = await _studentRepository.GetByIdAsync(studentId) ?? throw new ApplicationException($"Student ({studentId}) not registered for any course.");
-            
-            if (student.Courses == null)
-                throw new ApplicationException($"Student ({studentId}) not registered for any course.");
+            var courses = await GetRegisteredCoursesAsync(new StudentCoursesRequestDto() { StudentId = courseRegistration.StudentId });            
+            if (courses == null) return false;
 
-            foreach (var course in courseRegistrationRequest)
-            {
-                var deleteCourse = student.Courses.SingleOrDefault(c => c.Id == course.Id);
-                if(deleteCourse != null)
-                    student.Courses.Remove(deleteCourse);
-            }
+            var course = courses.FirstOrDefault(x => x.Name == courseRegistration.Name);
+            if (course == null) return false;
 
-            var response = await _studentRepository.UpdateAsync(student);
-            if(response > 0)
-                throw new ApplicationException($"Failed to un-register student ({student.Email}) to course");
+            StudentCourse studentCourse = new();
+            studentCourse.Course!.Id = course.Id;
+            studentCourse.Course.Name = course.Name;
+            studentCourse.Course.Duration = course.Duration;
+
+            var response = await _studentCourseRepository.DeleteAsync(studentCourse);
+            if (response == 0)
+                throw new ApplicationException($"Failed to un-register student ({courseRegistration.StudentId}) from course {courseRegistration.Name}");
 
             // refresh registered courses
-            return await this.GetRegisteredCoursesAsync(studentId);
+            return (response != 0);
         }
 
 
@@ -122,7 +131,7 @@ namespace afi.university.application.Services.Implementation
         /// <exception cref="ApplicationException"></exception>
         public async Task<List<StudentsResponseDto>> GetAllUniversityStudentsAsync()
         {
-            var students = await _studentRepository.GetAllAsync() ?? throw new ApplicationException($"Failed to retrieve students");
+            var students = await _studentRepository.GetAllAsync();
 
             List<StudentsResponseDto> response=new();
             foreach (var student in students)
@@ -145,62 +154,34 @@ namespace afi.university.application.Services.Implementation
 
         #region Private Implementations
         /// <summary>
-        /// Creates account to be used for login in
+        /// Creates student account
         /// </summary>
         /// <param name="registrationRequest"></param>
         /// <returns></returns>
         /// <exception cref="ApplicationException"></exception>
-        private async Task<User> CreateAccountAsync(StudentRegistrationRequestDto registrationRequest)
+        private async Task<Student> CreateAccountAsync(StudentRegistrationRequestDto registrationRequest)
         {
-            // TODO: Use Automapper
-            User user = new()
-            {
+            // TODO: Use Automapper  
+            Student student = new()
+            {                
                 FirstName = registrationRequest.FirstName,
                 LastName = registrationRequest.LastName,
                 Email = registrationRequest.Email,
                 Password = registrationRequest.Password, //TODO: Encrypt password
-                Role = UserRole.Student
-            };
-
-            int userreponse = await _userRepository.CreateAsync(user);
-            if (userreponse > 0)
-                throw new ApplicationException($"Faile to create user ({user.Email})");
-
-            return user;
-        }
-
-        /// <summary>
-        /// Creates student account
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        /// <exception cref="ApplicationException"></exception>
-        private async Task<Student> CreateAccountAsync(User user)
-        {
-            if(user == null)
-                throw new ApplicationException($"Faile to create user");
-
-            Student student = new()
-            {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Password = user.Password, //TODO: Encrypt password
                 Role = UserRole.Student,
-                StudentNumber = GenerateStudentNumber(user.FirstName, user.LastName),
-                Courses = new List<Course>()
+                StudentNumber = GenerateStudentNumber(registrationRequest.FirstName, registrationRequest.LastName)
             };
 
             var response = await _studentRepository.CreateAsync(student);
-            if (response > 0)
-                throw new ApplicationException($"Faile to create student ({user.Email})");
+            if (response == 0)
+                throw new ApplicationException($"Failed to create student ({registrationRequest.Email})");
 
             return student;
         }
 
         private string GenerateStudentNumber(string firstname, string lastname)
         {            
-            return $"{firstname.Substring(0, 3)} {lastname.Substring(lastname.Length - 4, 3)}";
+            return $"{firstname.Substring(0, 3)} {lastname.Substring(lastname.Length - 3, 3)}";
         }
 
 

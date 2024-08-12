@@ -1,6 +1,7 @@
 ﻿using afi.university.application.Models.Requests;
 using afi.university.application.Models.Responses;
 using afi.university.application.Services.Interfaces;
+using afi.university.domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,7 +29,7 @@ namespace afi.university.api.Controllers
         [HttpPost(Name = "RegisterToUniversity")]
         public async Task<ActionResult<StudentRegistrationResponseDto>> RegisterToUniversity(StudentRegistrationRequestDto studentRegistration)
         {
-            StudentRegistrationResponseDto response;
+            StudentRegistrationResponseDto response=new();
             try
             {
                 response = await _studentService.RegisterToUniversityAsync(studentRegistration);
@@ -37,6 +38,10 @@ namespace afi.university.api.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch(Exception ex)
+            {
+                var tst = ex;
+            }
 
             if (response == null) return BadRequest();
 
@@ -44,24 +49,55 @@ namespace afi.university.api.Controllers
         }
 
         /// <summary>
-        /// Gets all student registered courses
+        /// Registers a student to a course/courses
         /// </summary>
         /// <param name="studentId"></param>
+        /// <param name="studentCourses"></param>
         /// <returns></returns>
         [Authorize(Roles = "Student")]
-        [HttpGet(Name ="GetStudentCourses")]
-        public async Task<ActionResult<List<StudentCoursesDto>>> GetStudentRegisteredCourses(int studentId)
+        [HttpPost(Name = "RegisterCourse")]
+        public async Task<ActionResult<bool>> RegisterCourse(CourseRegistrationRequestDto courseRegistration)
         {
-            List<StudentCoursesDto> studentCourses;
+            bool response;
             try
             {
-                studentCourses = await _studentService.GetRegisteredCoursesAsync(studentId);
+                response = await _studentService.RegisterCourseAsync(courseRegistration);
             }
             catch (ApplicationException ex)
             {
                 return BadRequest(ex.Message);
             }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }        
 
+            return Ok(response);
+        }
+
+
+        /// <summary>
+        /// Gets all student registered courses
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Student")]
+        [HttpPost(Name = "GetStudentRegisteredCourses")]
+        public async Task<ActionResult<List<StudentCoursesDto>>> GetStudentRegisteredCourses(StudentCoursesRequestDto studentCoursesRequest)
+        {
+            List<StudentCoursesDto> studentCourses=new();
+            try
+            {
+                studentCourses = await _studentService.GetRegisteredCoursesAsync(studentCoursesRequest);
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                var ext = ex;
+            }
 
             if (studentCourses == null) return BadRequest();
 
@@ -93,30 +129,6 @@ namespace afi.university.api.Controllers
             return Ok(universityCourses);
         }
 
-        /// <summary>
-        /// Registers a student to a course/courses
-        /// </summary>
-        /// <param name="studentId"></param>
-        /// <param name="studentCourses"></param>
-        /// <returns></returns>
-        [Authorize(Roles = "Student")]
-        [HttpPost(Name = "RegisterToACourse")]
-        public async Task<ActionResult<List<StudentCoursesDto>>> RegisterToACourse(int studentId, List<StudentCoursesDto> studentCourses)
-        {
-            List<StudentCoursesDto> response;
-            try
-            {
-                response = await _studentService.RegisterToACourseAsync(studentId, studentCourses);
-            }
-            catch (ApplicationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            if (response == null) return BadRequest();
-
-            return Ok(response);
-        }
 
         /// <summary>
         /// Un-registers from a course/course
@@ -126,19 +138,21 @@ namespace afi.university.api.Controllers
         /// <returns></returns>
         [Authorize(Roles = "Student")]
         [HttpPost(Name = "UnregisterFromACourse")]
-        public async Task<ActionResult<List<StudentCoursesDto>>> UnregisterFromACourse(int studentId, List<StudentCoursesDto> studentCourses)
+        public async Task<ActionResult<bool>> UnregisterFromACourse(CourseRegistrationRequestDto courseRegistration)
         {
-            List<StudentCoursesDto> response;
+            bool response;
             try
             {
-                response = await _studentService.UnregisterAsync(studentId, studentCourses);
+                response = await _studentService.UnregisterAsync(courseRegistration);
             }
             catch (ApplicationException ex)
             {
                 return BadRequest(ex.Message);
             }
-
-            if (response == null) return BadRequest();
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
             return Ok(response);
         }

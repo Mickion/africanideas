@@ -35,9 +35,11 @@ namespace afi.university.ui.Services.Implementations.Authentication
             await _localStorageService.SetItem("user", User);
         }
 
-        public Task Logout()
+        public async Task Logout()
         {
-            throw new NotImplementedException();
+            User = null;
+            await _localStorageService.RemoveItem("user");
+            _navigationManager.NavigateTo("login");
         }
     }
 }

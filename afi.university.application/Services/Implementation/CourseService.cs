@@ -21,8 +21,8 @@ namespace afi.university.application.Services.Implementation
         }
         public async Task<int> AddCourseAsync(CourseRequestDto courseRequest)
         {
-            var response = await _courseRepository.CreateAsync(new Course() { Name= courseRequest.Name, Duration= courseRequest.Duration, Students=new()});
-            if (response > 0)
+            var response = await _courseRepository.CreateAsync(new Course() { Name= courseRequest.Name, Duration= courseRequest.Duration});
+            if (response == 0)
                 throw new ApplicationException($"Failed to create course ({courseRequest.Name})");
 
             return response;

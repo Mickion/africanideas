@@ -1,0 +1,50 @@
+﻿@attribute [Authorize]
+@inject ICourseService CourseService
+
+@if (loading)
+{
+    <div class="spinner-border spinner-border-sm"></div>
+}
+else
+{
+    if (_courses!.Count() > 0)
+    {
+        <table class="table small table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in _courses!)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Duration</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    }
+    <div class="row" style="max-width:200px;">
+        <a href="/admin/addcourse" class="btn btn-lg active oi oi-plus" role="button" aria-pressed="true">    Add Course</a>
+    </div>
+    
+
+    
+    
+}
+
+@code {
+    private bool loading;
+    private IEnumerable<StudentCourses>? _courses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        _courses = await CourseService.GetAllUniversityCourses();
+        loading = false;
+    }
+}

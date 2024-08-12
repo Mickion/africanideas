@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace afi.university.api.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class CourseController : ControllerBase
@@ -23,6 +23,7 @@ namespace afi.university.api.Controllers
         /// </summary>
         /// <param name="courseRequest"></param>
         /// <returns></returns>
+        [Authorize(Roles = "Admin")]
         [HttpPost(Name = "AddCourse")]
         public async Task<ActionResult<int>> AddCourseAsync(CourseRequestDto courseRequest)
         {
@@ -43,6 +44,7 @@ namespace afi.university.api.Controllers
         /// Gets all University courses
         /// </summary>
         /// <returns></returns>
+        [Authorize(Roles = "Admin,Student")]
         [HttpGet(Name ="GetAllUniversityCourses")]
         public async Task<ActionResult<List<StudentCoursesDto>>> GetAllUniversityCourses()
         {

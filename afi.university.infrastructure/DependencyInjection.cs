@@ -26,6 +26,7 @@ namespace afi.university.infrastructure
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ICourseRepository, CourseRepository>();
             services.AddTransient<IStudentRepository, StudentRepository>();
+            services.AddTransient<IStudentCourseRepository, StudentCourseRepository>();
             return services;
         }
     }
