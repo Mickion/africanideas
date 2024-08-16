@@ -13,11 +13,13 @@ namespace afi.university.api.Controllers
     {
         private readonly ICourseService _courseService;
         private readonly IStudentService _studentService;
-        
-        public StudentController(IStudentService studentService, ICourseService courseService)
+        private readonly ILogger<CourseController> _logger;
+
+        public StudentController(IStudentService studentService, ICourseService courseService, ILogger<CourseController> logger)
         {
             this._studentService = studentService;
             this._courseService = courseService;
+            this._logger = logger;
         }
 
         /// <summary>

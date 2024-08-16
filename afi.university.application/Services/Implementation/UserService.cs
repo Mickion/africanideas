@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using afi.university.application.Models.Requests;
+using afi.university.application.Common.Exceptions;
 
 namespace afi.university.application.Services.Implementation
 {
@@ -35,7 +36,7 @@ namespace afi.university.application.Services.Implementation
             User user = await _userRepository.GetUserLoginsAsync(loginRequest.Email, loginRequest.Password);
 
             if(user == null)
-                throw new NotFoundException(nameof(user));
+                throw new InvalidCredentialsException("Invalid Username or Password.");
 
             LoginResponseDto response = new()
             {

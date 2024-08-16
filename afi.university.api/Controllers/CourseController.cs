@@ -12,10 +12,12 @@ namespace afi.university.api.Controllers
     public class CourseController : ControllerBase
     {
         private readonly ICourseService _courseService;
+        private readonly ILogger<CourseController> _logger;
 
-        public CourseController(ICourseService courseService)
+        public CourseController(ICourseService courseService, ILogger<CourseController> logger)
         {
             this._courseService = courseService;
+            this._logger = logger;
         }
 
         /// <summary>
