@@ -8,6 +8,6 @@ namespace afi.university.application.Models.Requests
 {
     public class StudentCoursesRequestDto
     {
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
     }
 }

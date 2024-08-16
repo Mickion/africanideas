@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace afi.university.domain.Entities
 {
-    public class Course: Entity
+    public class Course: BaseEntity
     {
         /// <summary>
         /// Gets or sets course name

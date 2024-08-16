@@ -40,30 +40,39 @@ namespace afi.university.api
             {
                 new User
                 {
-                    Id = new Guid("admin@gmail.com"),
+                    Id = new Guid(),
                     FirstName = "admin",
                     LastName = "admin",
                     Email = "admin@gmail.com",
                     Password = "pass",
-                    Role = domain.Common.Enums.UserRole.Admin
+                    Role = domain.Common.Enums.UserRole.Admin,
+                    DateCreated = DateTime.Now,
+                    DateModified = DateTime.Now
                 },
-                new User
+                new Student
                 {
-                    Id = new Guid("mickion@gmail.com"),
+                    Id =new Guid(),
                     FirstName = "Mthokozisi",
                     LastName = "Mazibuko",
                     Email = "mickion@gmail.com",
                     Password = "pass",
-                    Role = domain.Common.Enums.UserRole.Student
+                    Role = domain.Common.Enums.UserRole.Student,
+                    StudentNumber = "MthoMaz2024",
+                    DateCreated = DateTime.Now,
+                    DateModified = DateTime.Now
+
                 },
-                new User
+                new Lecture
                 {
-                    Id = new Guid("petunia@gmail.com"),
+                    Id = new Guid(),
                     FirstName = "Petunia",
                     LastName = "Mazibuko",
                     Email = "petunia@gmail.com",
                     Password = "pass",
-                    Role = domain.Common.Enums.UserRole.Lecture
+                    Role = domain.Common.Enums.UserRole.Lecture,
+                    YearsOfExperience = 13,
+                    DateCreated = DateTime.Now,
+                    DateModified = DateTime.Now
                 }
             };
 
@@ -87,31 +96,39 @@ namespace afi.university.api
             {
                 new Course
                 {
-                    Id=new Guid("BSC Bachelor Of Computer Science"),
+                    Id = new Guid(),
                     Name= "BSC Bachelor Of Computer Science",
                     NQFLevel = 7,
-                    Duration = 4
+                    Duration = 4,
+                    DateCreated = DateTime.Now,
+                    DateModified = DateTime.Now
                 },
                 new Course
                 {
-                    Id = new Guid("National Diploma Information Technology"),
+                    Id = new Guid(),
                     Name = "National Diploma Information Technology",
                     NQFLevel = 6,
-                    Duration = 3
+                    Duration = 3,
+                    DateCreated = DateTime.Now,
+                    DateModified = DateTime.Now
                 },
                 new Course
                 {
-                    Id = new Guid("BSC Chemical engineering"),
+                    Id = new Guid(),
                     Name = "BSC Chemical engineering",
                     NQFLevel = 7,
-                    Duration = 5
+                    Duration = 5,
+                    DateCreated = DateTime.Now,
+                    DateModified = DateTime.Now
                 },
                 new Course
                 {
-                    Id = new Guid("National Diploma Civil engineering"),
+                    Id = new Guid(),
                     Name = "National Diploma Civil engineering",
                     NQFLevel = 6,
-                    Duration = 5
+                    Duration = 5,
+                    DateCreated = DateTime.Now,
+                    DateModified = DateTime.Now
                 }
             };
 

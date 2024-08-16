@@ -1,9 +1,10 @@
-﻿using afi.university.domain.Repositories;
-using afi.university.infrastructure.Persistence;
-using afi.university.infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using afi.university.domain.Repositories.Base;
 using Microsoft.Extensions.DependencyInjection;
+using afi.university.infrastructure.Persistence;
+using afi.university.infrastructure.Repositories.Base;
+
 
 namespace afi.university.infrastructure
 {
@@ -16,17 +17,14 @@ namespace afi.university.infrastructure
         /// <param name="configuration"></param>
         /// <returns></returns>
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-        {
+        {            
             services.AddDbContext<ApplicationDbContext>((sp, options) =>
             {
-                options.UseInMemoryDatabase(databaseName: "AfricanIdeasUniversity");
+                options.UseInMemoryDatabase(databaseName: configuration["afi.university.persistence:databaseName"]);
             });
 
             services.AddScoped<ApplicationDbContext>();
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<ICourseRepository, CourseRepository>();
-            services.AddTransient<IStudentRepository, StudentRepository>();
-            services.AddTransient<IStudentCourseRepository, StudentCourseRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             return services;
         }
     }

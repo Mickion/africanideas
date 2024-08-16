@@ -27,9 +27,9 @@ namespace afi.university.api.Controllers
         /// <returns></returns>
         [Authorize(Roles = "Admin")]
         [HttpPost(Name = "AddCourse")]
-        public async Task<ActionResult<int>> AddCourseAsync(CourseRequestDto courseRequest)
+        public async Task<ActionResult<bool>> AddCourseAsync(CourseRequestDto courseRequest)
         {
-            int response;
+            bool response;
             try
             {
                 response = await _courseService.AddCourseAsync(courseRequest);

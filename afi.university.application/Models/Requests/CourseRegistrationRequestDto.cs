@@ -8,7 +8,7 @@ namespace afi.university.application.Models.Requests
 {
     public class CourseRegistrationRequestDto
     {
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
 
         public string? Name { get; set; }
 

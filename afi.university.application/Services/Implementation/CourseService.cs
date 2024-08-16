@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace afi.university.application.Services.Implementation
 {
-    public class CourseService : ICourseService
+    internal class CourseService : ICourseService
     {
         private readonly ICourseRepository _courseRepository;
 
@@ -19,10 +19,10 @@ namespace afi.university.application.Services.Implementation
         {
             this._courseRepository = courseRepository;
         }
-        public async Task<int> AddCourseAsync(CourseRequestDto courseRequest)
+        public async Task<bool> AddCourseAsync(CourseRequestDto courseRequest)
         {
             var response = await _courseRepository.CreateAsync(new Course() { Name= courseRequest.Name, Duration= courseRequest.Duration});
-            if (response == 0)
+            if (!response)
                 throw new ApplicationException($"Failed to create course ({courseRequest.Name})");
 
             return response;

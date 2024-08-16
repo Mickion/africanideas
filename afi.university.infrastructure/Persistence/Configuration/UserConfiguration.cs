@@ -12,7 +12,7 @@ namespace afi.university.infrastructure.Persistence.Configuration
             builder.HasData(
                 new User
                 {
-                    Id = new Guid("admin@gmail.com"),
+                    Id = new Guid(),
                     FirstName = "admin",
                     LastName = "admin",
                     Email = "admin@gmail.com",
@@ -21,7 +21,7 @@ namespace afi.university.infrastructure.Persistence.Configuration
                 },
                 new User
                 {
-                    Id = new Guid("mickion@gmail.com"),
+                    Id = new Guid(),
                     FirstName = "Mthokozisi",
                     LastName = "Mazibuko",
                     Email = "mickion@gmail.com",
@@ -30,7 +30,7 @@ namespace afi.university.infrastructure.Persistence.Configuration
                 },
                 new User
                 {
-                    Id = new Guid("petunia@gmail.com"),
+                    Id = new Guid(),
                     FirstName = "Petunia",
                     LastName = "Mazibuko",
                     Email = "petunia@gmail.com",

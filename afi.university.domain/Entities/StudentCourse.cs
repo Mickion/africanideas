@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace afi.university.domain.Entities
 {
-    public class StudentCourse: Entity
+    public class StudentCourse: BaseEntity
     {
         [ForeignKey(nameof(Student))]
         public Guid StudentId { get; set; }

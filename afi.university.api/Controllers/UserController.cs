@@ -1,10 +1,8 @@
 ﻿using afi.university.application.Common.Exceptions;
-using afi.university.application.Models.Requests;
-using afi.university.application.Models.Responses;
 using afi.university.application.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
+using afi.university.shared.DataTransferObjects.Requests;
+using afi.university.shared.DataTransferObjects.Responses;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Authentication;
 
 namespace afi.university.api.Controllers
 {
@@ -27,11 +25,10 @@ namespace afi.university.api.Controllers
         /// <param name="loginRequest"></param>
         /// <returns></returns>
         [HttpPost(Name = "Login")]
-        public async Task<ActionResult<LoginResponseDto>> Login(LoginRequestDto loginRequest)
-        {
-            _logger.LogDebug("Login requested by username {1}", loginRequest.Email);
-
-            LoginResponseDto? response = null;
+        public async Task<ActionResult<LoginResponse>> Login(LoginRequest loginRequest)
+        {            
+            //TODO: Implement exception middleware & catch InvalidCredentialsException there
+            LoginResponse response;
             try
             {
                 response = await _userService.LoginAsync(loginRequest);
@@ -41,21 +38,26 @@ namespace afi.university.api.Controllers
                 _logger.LogWarning("Failed login attempt {0} - ",  ex);
                 return Unauthorized(ex.Message);
             }
-            catch (domain.Common.Exceptions.NotFoundException ex)
-            {
-                _logger.LogWarning("Failed login attempt {0} - ", ex);
-                return Unauthorized("Invalid Username or Password.");                
-            }
             catch(Exception ex)
             {
                 _logger.LogError("Failed login attempt {0} - ", ex);
+                return BadRequest(ex.Message);
             }
 
-            if(response == null) return Unauthorized("Invalid Username or Password.");
-            
-            if (string.IsNullOrWhiteSpace(response.Token)) return Unauthorized();
+            if (response == null) 
+            {
+                _logger.LogWarning("Failed login attempt - Response is null.");
+                return Unauthorized("Invalid Username or Password.");
+            }
+
+            if (string.IsNullOrWhiteSpace(response.Token)) 
+            {
+                _logger.LogWarning("Failed login attempt - Token is null.");
+                return Unauthorized("Invalid Username or Password.");
+            }
 
             return Ok(response);
         }
     }
+
 }

@@ -15,28 +15,28 @@ namespace afi.university.infrastructure.Persistence.Configuration
             builder.HasData(
                 new Course
                 {
-                    Id=new Guid("BSC Bachelor Of Computer Science"),
-                    Name= "BSC Bachelor Of Computer Science",
+                    Id= new Guid(),
+                    Name = "BSC Bachelor Of Computer Science",
                     NQFLevel = 7,
                     Duration = 4
                 },
                 new Course
                 {
-                    Id = new Guid("National Diploma Information Technology"),
+                    Id = new Guid(),
                     Name = "National Diploma Information Technology",
                     NQFLevel = 6,
                     Duration = 3
                 },
                 new Course
                 {
-                    Id = new Guid("BSC Chemical engineering"),
+                    Id = new Guid(),
                     Name = "BSC Chemical engineering",
                     NQFLevel = 7,
                     Duration = 5
                 },
                 new Course
                 {
-                    Id = new Guid("National Diploma Civil engineering"),
+                    Id = new Guid(),
                     Name = "National Diploma Civil engineering",
                     NQFLevel = 6,
                     Duration = 5

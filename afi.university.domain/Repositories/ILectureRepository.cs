@@ -3,8 +3,7 @@ using afi.university.domain.Repositories.Base;
 
 namespace afi.university.domain.Repositories
 {
-    public interface ICourseRepository: IBaseRepository<Course>
+    public interface ILectureRepository: IBaseRepository<Lecture>
     {
-        Task<Course> GetCourseByNameAsync(string courseName, bool trackChanges);
     }
 }

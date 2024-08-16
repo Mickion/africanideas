@@ -9,7 +9,7 @@ namespace afi.university.application.Models.Responses
 {
     public class StudentsResponseDto
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string? FirstName { get; set; }
 
         public string? LastName { get; set; }

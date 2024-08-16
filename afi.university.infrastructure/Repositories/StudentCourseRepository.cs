@@ -9,18 +9,18 @@ namespace afi.university.infrastructure.Repositories
     {
         public StudentCourseRepository(ApplicationDbContext dbContext) : base(dbContext) { }
 
-        public override async Task<StudentCourse> GetByIdAsync(int studentCourseId, bool trackChanges)
+        public override async Task<StudentCourse> GetByIdAsync(Guid studentCourseId, bool trackChanges)
         {
             var studentCourse = await GetByConditionAsync(c => c.Id.Equals(studentCourseId), trackChanges);
             return studentCourse!.SingleOrDefault(); //TODO: Deal with this
         }
 
-        public async Task<IEnumerable<StudentCourse>> GetCoursesByStudentIdAsync(int studentId, bool trackChanges)
+        public async Task<IEnumerable<StudentCourse>> GetCoursesByStudentIdAsync(Guid studentId, bool trackChanges)
         {
             return await GetByConditionAsync(c => c.StudentId.Equals(studentId), trackChanges);        
         }
 
-        public async Task<IEnumerable<StudentCourse>> GetStudentsByCourseIdAsync(int courseId, bool trackChanges)
+        public async Task<IEnumerable<StudentCourse>> GetStudentsByCourseIdAsync(Guid courseId, bool trackChanges)
         {
             return await GetByConditionAsync(c => c.CourseId.Equals(courseId), trackChanges);
         }

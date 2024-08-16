@@ -7,7 +7,7 @@ using afi.university.domain.Repositories;
 
 namespace afi.university.application.Services.Implementation
 {
-    public class StudentService : IStudentService
+    internal class StudentService : IStudentService
     {        
         private readonly ICourseRepository _courseRepository;
         private readonly IStudentCourseRepository _studentCourseRepository;
@@ -33,11 +33,11 @@ namespace afi.university.application.Services.Implementation
         {
             List<StudentCoursesDto> studentCourses = new();
             
-            var courses = await _studentCourseRepository.GetCoursesByStudentIdAsync(studentCoursesRequest.StudentId);
+            var courses = await _studentCourseRepository.GetCoursesByStudentIdAsync(studentCoursesRequest.StudentId, false);
 
             foreach (var course in courses)
             {
-                var cr = await _courseRepository.GetByIdAsync(course.CourseId);
+                var cr = await _courseRepository.GetByIdAsync(course.CourseId, false);
                 studentCourses.Add(
                     new StudentCoursesDto()
                     {
@@ -73,10 +73,10 @@ namespace afi.university.application.Services.Implementation
         /// <exception cref="NotImplementedException"></exception>
         public async Task<bool> RegisterCourseAsync(CourseRegistrationRequestDto courseRegistration)
         {
-            var student = await _studentRepository.GetByIdAsync(courseRegistration.StudentId);
+            var student = await _studentRepository.GetByIdAsync(courseRegistration.StudentId, false);
             if (student == null) return false;
 
-            var course = await _courseRepository.GetCourseByNameAsync(courseRegistration.Name!);
+            var course = await _courseRepository.GetCourseByNameAsync(courseRegistration.Name!, false);
             if (course == null) return false;
 
             StudentCourse studentCourse = new()
@@ -89,7 +89,7 @@ namespace afi.university.application.Services.Implementation
 
             var response = await _studentCourseRepository.CreateAsync(studentCourse);
 
-            if(response == 0)
+            if(!response)
                 throw new ApplicationException($"Failed to register user ({student.Email}) to course {course.Name}");
             
             return true;
@@ -115,12 +115,13 @@ namespace afi.university.application.Services.Implementation
             studentCourse.Course.Name = course.Name;
             studentCourse.Course.Duration = course.Duration;
 
-            var response = await _studentCourseRepository.DeleteAsync(studentCourse);
-            if (response == 0)
+            //TODO: Fix this, it will not work
+            var response = await _studentCourseRepository.DeleteAsync(course.Id);
+            if (!response)
                 throw new ApplicationException($"Failed to un-register student ({courseRegistration.StudentId}) from course {courseRegistration.Name}");
 
             // refresh registered courses
-            return (response != 0);
+            return true;
         }
 
 
@@ -173,7 +174,7 @@ namespace afi.university.application.Services.Implementation
             };
 
             var response = await _studentRepository.CreateAsync(student);
-            if (response == 0)
+            if (!response)
                 throw new ApplicationException($"Failed to create student ({registrationRequest.Email})");
 
             return student;

@@ -3,10 +3,10 @@ using afi.university.domain.Repositories.Base;
 
 namespace afi.university.domain.Repositories
 {
-    public interface IStudentCourseRepository: IRepositoryBase<StudentCourse>
+    public interface IStudentCourseRepository: IBaseRepository<StudentCourse>
     {
-        Task<IEnumerable<StudentCourse>> GetCoursesByStudentIdAsync(int studentId, bool trackChanges);
+        Task<IEnumerable<StudentCourse>> GetCoursesByStudentIdAsync(Guid studentId, bool trackChanges);
 
-        Task<IEnumerable<StudentCourse>> GetStudentsByCourseIdAsync(int courseId, bool trackChanges);
+        Task<IEnumerable<StudentCourse>> GetStudentsByCourseIdAsync(Guid courseId, bool trackChanges);
     }
 }

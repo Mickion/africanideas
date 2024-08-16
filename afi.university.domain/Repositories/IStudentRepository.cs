@@ -4,7 +4,7 @@ using afi.university.domain.Repositories.Base;
 
 namespace afi.university.domain.Repositories
 {
-    public interface IStudentRepository: IRepositoryBase<Student>
+    public interface IStudentRepository: IBaseRepository<Student>
     {
         Task<User> GetStudentByEmailAsync(string email, bool trackChanges);
     }

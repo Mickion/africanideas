@@ -10,7 +10,7 @@ namespace afi.university.infrastructure.Repositories
     {
         public StudentRepository(ApplicationDbContext dbContext) : base(dbContext) { }
 
-        public override async Task<Student> GetByIdAsync(int studentId, bool trackChanges)
+        public override async Task<Student> GetByIdAsync(Guid studentId, bool trackChanges)
         {
             var student = await GetByConditionAsync(c => c.Id.Equals(studentId), trackChanges);
             return student!.SingleOrDefault(); //TODO: Deal with this

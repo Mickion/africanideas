@@ -1,23 +1,24 @@
-using Microsoft.Extensions.Configuration;
 using afi.university.application;
 using afi.university.infrastructure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using afi.university.api;
-using Serilog;
+using AutoMapper;
+using afi.university.application.Common.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+#region Add Custom Services to the container
 builder.Logging.AddLogging(builder.Configuration);
 builder.Services.AddJwtAuth(builder.Configuration);
-builder.Services.AddControllers();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 //Add application & infrastructure layers
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
+#endregion
 
+builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

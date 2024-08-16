@@ -9,7 +9,7 @@ namespace afi.university.infrastructure.Repositories
     {
         public CourseRepository(ApplicationDbContext dbContext) : base(dbContext) { }
 
-        public override async Task<Course> GetByIdAsync(int courseId, bool trackChanges)
+        public override async Task<Course> GetByIdAsync(Guid courseId, bool trackChanges)
         {
             var course = await GetByConditionAsync(c => c.Id.Equals(courseId), trackChanges);
             return course!.SingleOrDefault(); //TODO: Deal with this

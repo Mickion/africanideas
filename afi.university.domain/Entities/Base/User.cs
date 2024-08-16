@@ -6,7 +6,7 @@ namespace afi.university.domain.Entities.Base
     /// <summary>
     /// Entity for loggin in to the system
     /// </summary>
-    public class User : Entity
+    public class User : BaseEntity
     {
 
         /// <summary>
@@ -24,7 +24,8 @@ namespace afi.university.domain.Entities.Base
         /// <summary>
         /// Gets or sets email address
         /// </summary>                
-        [Required(ErrorMessage = "Email address is a required field.")]        
+        [Required(ErrorMessage = "Email address is a required field.")]
+        [EmailAddress]
         public string? Email { get; set; }
 
         /// <summary>

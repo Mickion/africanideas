@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace afi.university.infrastructure.Repositories.Base
 {
-    internal abstract class BaseRepository<TEntity, TDbContext> : IRepositoryBase<TEntity> 
+    internal abstract class BaseRepository<TEntity, TDbContext> : IBaseRepository<TEntity> 
         where TEntity : class
         where TDbContext : DbContext
     {
@@ -15,23 +15,33 @@ namespace afi.university.infrastructure.Repositories.Base
             this._dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public virtual async Task<int> CreateAsync(TEntity entity)
+        public async Task<bool> CreateAsync(TEntity entity)
         {
-            _dbContext.Set<TEntity>().Add(entity);  
-            // TODO: UnitOfWork
-            return await _dbContext.SaveChangesAsync();            
+            await _dbContext.Set<TEntity>().AddAsync(entity);
+            return true;          
         }
 
-        public async Task<int> DeleteAsync(TEntity entity)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            _dbContext.Set<TEntity>().Remove(entity);
-            return await _dbContext.SaveChangesAsync();
+            var deleteEntity = await _dbContext.Set<TEntity>().FindAsync(id);
+            if(deleteEntity != null)
+            {
+                _dbContext.Set<TEntity>().Remove(deleteEntity);
+                return true;
+            }
+
+            return false;
         }
 
-        public async Task<int> UpdateAsync(TEntity entity)
+        public async Task<bool> UpdateAsync(Guid id, TEntity entity)
         {
-            _dbContext.Set<TEntity>().Update(entity);
-            return await _dbContext.SaveChangesAsync();
+            var updateEntity = await _dbContext.Set<TEntity>().FindAsync(id);
+            if(updateEntity != null)
+            {
+                _dbContext.Set<TEntity>().Update(updateEntity);
+                return true;
+            }
+            return false;
         }
 
         public virtual async Task<IQueryable<TEntity>> GetAllAsync(bool trackChanges)
@@ -48,7 +58,7 @@ namespace afi.university.infrastructure.Repositories.Base
             return !trackChanges ? _dbContext.Set<TEntity>().Where(expression).AsNoTracking() : _dbContext.Set<TEntity>().Where(expression);
         }
 
-        public abstract Task<TEntity> GetByIdAsync(int id, bool trackChanges);
+        public abstract Task<TEntity> GetByIdAsync(Guid id, bool trackChanges);
 
     }
 }
