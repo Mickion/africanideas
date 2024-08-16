@@ -1,13 +1,12 @@
-﻿using afi.university.domain.Common.Enums;
-using afi.university.domain.Entities;
+﻿using afi.university.domain.Entities;
 using afi.university.domain.Entities.Base;
 using afi.university.infrastructure.Persistence;
 
 namespace afi.university.api
 {
     internal static class DbInitializerExtension
-    {
-        public static IApplicationBuilder UseItToSeedSqlServer(this IApplicationBuilder app)
+    {        
+        public static IApplicationBuilder UseSeedInMemoryDb(this IApplicationBuilder app)
         {
             ArgumentNullException.ThrowIfNull(app, nameof(app));
 
@@ -16,37 +15,104 @@ namespace afi.university.api
             try
             {
                 var context = services.GetRequiredService<ApplicationDbContext>();
-                Initialize(context);
+                InitializeUsers(context);
+                InitializeCourses(context);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-
+                throw;
             }
 
             return app;
         }
 
-        internal static void Initialize(ApplicationDbContext dbContext)
+        /// <summary>
+        /// Seeds User test data
+        /// </summary>
+        /// <param name="dbContext"></param>
+        private static void InitializeUsers(ApplicationDbContext dbContext)
         {
             ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
             dbContext.Database.EnsureCreated();
             if (dbContext.Users!.Any()) return;
 
-            var users = new Student[]
+            var users = new User[]
             {
-               new Student{ Id = 1, FirstName = "Mickion", LastName="Mazibuko", Email="mickion.mtshali@gmail.com", Password="test", Role=UserRole.Admin, StudentNumber="" }            
+                new User
+                {
+                    Id = new Guid("admin@gmail.com"),
+                    FirstName = "admin",
+                    LastName = "admin",
+                    Email = "admin@gmail.com",
+                    Password = "pass",
+                    Role = domain.Common.Enums.UserRole.Admin
+                },
+                new User
+                {
+                    Id = new Guid("mickion@gmail.com"),
+                    FirstName = "Mthokozisi",
+                    LastName = "Mazibuko",
+                    Email = "mickion@gmail.com",
+                    Password = "pass",
+                    Role = domain.Common.Enums.UserRole.Student
+                },
+                new User
+                {
+                    Id = new Guid("petunia@gmail.com"),
+                    FirstName = "Petunia",
+                    LastName = "Mazibuko",
+                    Email = "petunia@gmail.com",
+                    Password = "pass",
+                    Role = domain.Common.Enums.UserRole.Lecture
+                }
             };
 
             foreach (var user in users)
-                dbContext.Students!.Add(user);
+                dbContext.Users!.Add(user);
 
             dbContext.SaveChanges();
+        }
+
+        /// <summary>
+        /// Seeds Course test data
+        /// </summary>
+        /// <param name="dbContext"></param>
+        private static void InitializeCourses(ApplicationDbContext dbContext)
+        {
+            ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
+            dbContext.Database.EnsureCreated();
+            if (dbContext.Courses!.Any()) return;
 
             var courses = new Course[]
             {
-                new Course{ Id = 1, Name="ND: Information Technology", Duration=3},
-                new Course{ Id = 2, Name="BSC Human Resources", Duration=4},
-                new Course{ Id = 3, Name="MBA Business Management", Duration=6}
+                new Course
+                {
+                    Id=new Guid("BSC Bachelor Of Computer Science"),
+                    Name= "BSC Bachelor Of Computer Science",
+                    NQFLevel = 7,
+                    Duration = 4
+                },
+                new Course
+                {
+                    Id = new Guid("National Diploma Information Technology"),
+                    Name = "National Diploma Information Technology",
+                    NQFLevel = 6,
+                    Duration = 3
+                },
+                new Course
+                {
+                    Id = new Guid("BSC Chemical engineering"),
+                    Name = "BSC Chemical engineering",
+                    NQFLevel = 7,
+                    Duration = 5
+                },
+                new Course
+                {
+                    Id = new Guid("National Diploma Civil engineering"),
+                    Name = "National Diploma Civil engineering",
+                    NQFLevel = 6,
+                    Duration = 5
+                }
             };
 
             foreach (var course in courses)
@@ -54,5 +120,6 @@ namespace afi.university.api
 
             dbContext.SaveChanges();
         }
+
     }
 }

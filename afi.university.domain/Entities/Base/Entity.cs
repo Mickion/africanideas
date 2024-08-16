@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace afi.university.domain.Entities.Base
 {
@@ -8,9 +7,8 @@ namespace afi.university.domain.Entities.Base
         /// <summary>
         /// Gets or sets Id
         /// </summary>
-        [Key]                
-        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        [Key]                        
+        public Guid Id { get; set; }        
 
     }
 }

@@ -1,15 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using afi.university.domain.Entities.Base;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace afi.university.domain.Entities
 {
-    public class StudentCourse
+    public class StudentCourse: Entity
     {
         [ForeignKey(nameof(Student))]
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
         public Student? Student { get; set;}
 
         [ForeignKey(nameof(Course))]
-        public int CourseId { get; set; }
+        public Guid CourseId { get; set; }
         public Course? Course { get; set;}
     }
 }

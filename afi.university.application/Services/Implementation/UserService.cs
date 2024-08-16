@@ -1,7 +1,6 @@
 ﻿using afi.university.application.Models.Responses;
 using afi.university.application.Services.Interfaces;
 using afi.university.domain.Common.Enums;
-using afi.university.domain.Common.Exceptions;
 using afi.university.domain.Entities.Base;
 using afi.university.domain.Repositories;
 using System.Security.Claims;
@@ -25,17 +24,21 @@ namespace afi.university.application.Services.Implementation
             this._configuration = configuration;
         }
 
+        /// <summary>
+        /// Authenticates user and returns JWT token
+        /// </summary>
+        /// <param name="loginRequest"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidCredentialsException"></exception>
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto loginRequest)
         {
-            if (string.IsNullOrWhiteSpace(loginRequest.Email)) 
-                throw new ArgumentException(nameof(loginRequest.Email));
+            if (string.IsNullOrWhiteSpace(loginRequest.Email) 
+                || string.IsNullOrWhiteSpace(loginRequest.Password))
+                throw new InvalidCredentialsException("Invalid Username or Password.");
 
-            if (string.IsNullOrWhiteSpace(loginRequest.Password))
-                throw new ArgumentException(nameof(loginRequest.Password));
+            User user = await _userRepository.GetUserLoginsAsync(loginRequest.Email, loginRequest.Password, false);
 
-            User user = await _userRepository.GetUserLoginsAsync(loginRequest.Email, loginRequest.Password);
-
-            if(user == null)
+            if (user == null)
                 throw new InvalidCredentialsException("Invalid Username or Password.");
 
             LoginResponseDto response = new()
@@ -52,17 +55,20 @@ namespace afi.university.application.Services.Implementation
         }
 
         #region Private Implementation methods
+        /// <summary>
+        /// Generates role based JWT Token
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         private string GenerateToken(User user)
         {
-            if (string.IsNullOrWhiteSpace(user.Email))
-                throw new ArgumentException(nameof(user.Email));
-
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JwtSettings:SecretKey"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Email),                
+                new Claim(ClaimTypes.Name, user.Email!),                
                 new Claim(ClaimTypes.Role, Enum.GetName(typeof(UserRole), user.Role))
             };
 

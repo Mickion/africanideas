@@ -30,7 +30,7 @@ namespace afi.university.application.Services.Implementation
 
         public async Task<List<StudentCoursesDto>> GetAllCoursesAsync()
         {
-            var courses = await _courseRepository.GetAllAsync();
+            var courses = await _courseRepository.GetAllAsync(false);
 
             
             List<StudentCoursesDto> response = new();

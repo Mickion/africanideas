@@ -131,7 +131,7 @@ namespace afi.university.application.Services.Implementation
         /// <exception cref="ApplicationException"></exception>
         public async Task<List<StudentsResponseDto>> GetAllUniversityStudentsAsync()
         {
-            var students = await _studentRepository.GetAllAsync();
+            var students = await _studentRepository.GetAllAsync(false);
 
             List<StudentsResponseDto> response=new();
             foreach (var student in students)

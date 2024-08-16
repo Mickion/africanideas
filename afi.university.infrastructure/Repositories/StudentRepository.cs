@@ -1,36 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
-using afi.university.domain.Entities;
+﻿using afi.university.domain.Entities;
+using afi.university.domain.Entities.Base;
 using afi.university.domain.Repositories;
-using afi.university.domain.Common.Exceptions;
 using afi.university.infrastructure.Persistence;
 using afi.university.infrastructure.Repositories.Base;
 
 namespace afi.university.infrastructure.Repositories
 {
-    public class StudentRepository: BaseRepository<Student, ApplicationDbContext>, IStudentRepository
+    internal class StudentRepository : BaseRepository<Student, ApplicationDbContext>, IStudentRepository
     {
-        private readonly ApplicationDbContext _dbContext;
+        public StudentRepository(ApplicationDbContext dbContext) : base(dbContext) { }
 
-        public StudentRepository(ApplicationDbContext dbContext) : base(dbContext)
+        public override async Task<Student> GetByIdAsync(int studentId, bool trackChanges)
         {
-            this._dbContext = dbContext;
+            var student = await GetByConditionAsync(c => c.Id.Equals(studentId), trackChanges);
+            return student!.SingleOrDefault(); //TODO: Deal with this
         }
 
-        public override async Task<IEnumerable<Student>> GetAllAsync()
+        public async Task<User> GetStudentByEmailAsync(string email, bool trackChanges)
         {
-            var students = _dbContext.Students;
-
-            await Task.CompletedTask;
-            return students ?? throw new NotFoundException("Students not found.");
-        }
-
-        public override async Task<Student> GetByIdAsync(int id)
-        {
-            var student = await _dbContext.Students!.FirstOrDefaultAsync(s => s.Id == id);
-
-            await Task.CompletedTask;
-            return student ?? throw new NotFoundException($"Student ({id}) not found.");
-
+            var student = await GetByConditionAsync(c => c.Id.Equals(email), trackChanges);
+            return student!.SingleOrDefault(); //TODO: Deal with this
         }
     }
 }

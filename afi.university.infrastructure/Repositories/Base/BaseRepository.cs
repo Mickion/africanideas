@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using afi.university.domain.Repositories.Base;
+using System.Linq.Expressions;
 
 namespace afi.university.infrastructure.Repositories.Base
 {
-    public class BaseRepository<TEntity, TDbContext> : IBaseRepository<TEntity> 
+    internal abstract class BaseRepository<TEntity, TDbContext> : IRepositoryBase<TEntity> 
         where TEntity : class
         where TDbContext : DbContext
     {
@@ -32,15 +33,21 @@ namespace afi.university.infrastructure.Repositories.Base
             return await _dbContext.SaveChangesAsync();
         }
 
-        public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
+        public virtual async Task<IQueryable<TEntity>> GetAllAsync(bool trackChanges)
         {
-            return await _dbContext.Set<TEntity>().ToListAsync();
+            //TODO: Make async, remove await Task.CompletedTask;
+            await Task.CompletedTask;
+            return !trackChanges ? _dbContext.Set<TEntity>().AsNoTracking() : _dbContext.Set<TEntity>();            
         }
 
-        public virtual Task<TEntity> GetByIdAsync(int id)
+        public async Task<IQueryable<TEntity>> GetByConditionAsync(Expression<Func<TEntity, bool>> expression, bool trackChanges)
         {
-            throw new NotImplementedException();
+            //TODO: Make async
+            await Task.CompletedTask;
+            return !trackChanges ? _dbContext.Set<TEntity>().Where(expression).AsNoTracking() : _dbContext.Set<TEntity>().Where(expression);
         }
+
+        public abstract Task<TEntity> GetByIdAsync(int id, bool trackChanges);
 
     }
 }

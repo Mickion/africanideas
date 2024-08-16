@@ -9,9 +9,6 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
-
 // Add services to the container.
 builder.Logging.AddLogging(builder.Configuration);
 builder.Services.AddJwtAuth(builder.Configuration);
@@ -33,7 +30,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseItToSeedSqlServer();    //custom extension method to seed the DB
+    app.UseSeedInMemoryDb();    //seed test data
 }
 
 app.UseCors(builder => builder

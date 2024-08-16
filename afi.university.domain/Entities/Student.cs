@@ -9,5 +9,7 @@ namespace afi.university.domain.Entities
         /// </summary>
         public string? StudentNumber { get; set; }
 
+        public ICollection<Course>? Courses { get; set; }
+
     }
 }

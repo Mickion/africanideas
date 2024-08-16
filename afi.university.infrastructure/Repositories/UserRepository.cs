@@ -1,46 +1,25 @@
-﻿using afi.university.domain.Entities;
-using afi.university.domain.Repositories;
+﻿using afi.university.domain.Repositories;
 using afi.university.domain.Entities.Base;
 using afi.university.infrastructure.Persistence;
 using afi.university.infrastructure.Repositories.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using afi.university.domain.Common.Exceptions;
-using Microsoft.EntityFrameworkCore;
 
 namespace afi.university.infrastructure.Repositories
 {
-    public class UserRepository : BaseRepository<User, ApplicationDbContext>, IUserRepository
+    internal class UserRepository : BaseRepository<User, ApplicationDbContext>, IUserRepository
     {
-        private readonly ApplicationDbContext _dbContext;
+        public UserRepository(ApplicationDbContext dbContext) : base(dbContext) { }
 
-        public UserRepository(ApplicationDbContext dbContext) : base(dbContext)
+        public override async Task<User> GetByIdAsync(int userId, bool trackChanges)
         {
-            this._dbContext = dbContext;      
+            var user = await GetByConditionAsync(c => c.Id.Equals(userId), trackChanges);
+            return user!.SingleOrDefault(); //TODO: Deal with this
         }
 
-        public override async Task<User> GetByIdAsync(int id)
+        public async Task<User> GetUserLoginsAsync(string username, string password, bool trackChanges)
         {
-            var user = _dbContext.Users?
-                .Where(cr => cr.Id == id)                
-                .FirstOrDefault();
+            var user = await GetByConditionAsync(c => c.Email!.Equals(username) && c.Password!.Equals(password), trackChanges);
+            return user!.SingleOrDefault(); //TODO: Deal with this
 
-            await Task.CompletedTask;
-            return user ?? throw new NotFoundException($"User id ({id}) not found.");
-
-        }
-
-        public async Task<User> GetUserLoginsAsync(string username, string password)
-        {
-            var user = _dbContext.Students?
-                .Where(cr => cr.Email == username && cr.Password == password)
-                .FirstOrDefault();
-
-            await Task.CompletedTask;
-            return user ?? throw new NotFoundException($"User ({username}) not found.");
         }
     }
 }
