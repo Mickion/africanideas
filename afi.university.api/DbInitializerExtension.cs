@@ -136,7 +136,7 @@ namespace afi.university.api
                 },
                 new Course
                 {
-                    Id = new Guid(),
+                    Id = new Guid("459cbdaa-5987-3049-e756-0f931e27567f"),
                     Name = "National Diploma Civil engineering",
                     NQFLevel = 6,
                     Duration = 5,

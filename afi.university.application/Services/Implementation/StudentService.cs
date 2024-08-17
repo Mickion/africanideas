@@ -1,6 +1,4 @@
 ﻿using afi.university.application.Common.Exceptions;
-using afi.university.application.Models.Requests;
-using afi.university.application.Models.Responses;
 using afi.university.application.Services.Interfaces;
 using afi.university.domain.Common.Enums;
 using afi.university.domain.Entities;
@@ -14,7 +12,8 @@ namespace afi.university.application.Services.Implementation
     internal class StudentService : IStudentService
     {     
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork _repository;        
+        private readonly IUnitOfWork _repository;
+        private readonly Random random = new Random();
 
         public StudentService(IUnitOfWork unitOfWork, IMapper mapper)
         {
@@ -22,11 +21,16 @@ namespace afi.university.application.Services.Implementation
             this._repository = unitOfWork;            
         }
 
+        /// <summary>
+        /// Get all registered students
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotFoundException"></exception>
         public async Task<IEnumerable<StudentResponse>> GetAllStudentsAsync()
         {
             var students = await _repository.Users.GetByConditionAsync(e => e.Role.Equals(UserRole.Student), false);      
             if(students == null)
-                throw new NotFoundException("Students not found");
+                throw new NotFoundException("Students not found.");
 
             return _mapper.Map<ICollection<StudentResponse>>(students);
         }
@@ -37,7 +41,7 @@ namespace afi.university.application.Services.Implementation
         /// <param name="studentId"></param>
         /// <returns></returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<StudentResponse> GetStudentCoursesAsync(StudentRequest studentRequest)
+        public async Task<StudentResponse> GetStudentRegisteredCoursesAsync(StudentRequest studentRequest)
         {
             // get student
             var student = await _repository.Students.GetByIdAsync(studentRequest.StudentId, false);
@@ -50,9 +54,15 @@ namespace afi.university.application.Services.Implementation
             var studentCourses = await _repository.StudentCourses.GetCoursesByStudentIdAsync(student.Id, false);
 
             foreach (var studentCourse in studentCourses)
-            {          
+            {
                 // get course details
-                response.Courses!.Add(_mapper.Map<CourseResponse>(await _repository.Courses.GetByIdAsync(studentCourse.CourseId, false)));
+                var registeredCourse = _mapper.Map<CourseResponse>(await _repository.Courses.GetByIdAsync(studentCourse.CourseId, false));
+                if (registeredCourse != null)
+                {
+                    registeredCourse.Registered = true;
+                    response.Courses!.Add(registeredCourse);
+                }
+                
             }
 
             return response;
@@ -63,12 +73,24 @@ namespace afi.university.application.Services.Implementation
         /// </summary>
         /// <param name="registrationRequest"></param>
         /// <returns></returns>
-        public async Task<StudentRegistrationResponseDto> RegisterToUniversityAsync(StudentRegistrationRequestDto registrationRequest)
+        public async Task<RegistrationResponse> RegisterStudentAsync(RegistrationRequest registrationRequest)
         {
-            throw new NotImplementedException();
-            //var user = await CreateAccountAsync(registrationRequest);
+            // get student
+            var student = await _repository.Users.GetUserByEmailAsync(registrationRequest.Email!, false);            
+            if (student != null)            
+                throw new StudentAlreadyExistsException(registrationRequest.Email!);            
+                
+            Student newStudent = _mapper.Map<Student>(registrationRequest);
+            newStudent.StudentNumber = GenerateStudentNumber(newStudent.FirstName!, newStudent.LastName!);
+            newStudent.DateCreated = DateTime.Now;
+            newStudent.DateModified = DateTime.Now;
+            newStudent.Role = UserRole.Student;
+            
+            await _repository.Users.CreateAsync(newStudent);
+            _repository.SaveChangesAsync();
 
-            //return new StudentRegistrationResponseDto() { StudentNumber = GenerateStudentNumber(user.FirstName!, user.LastName!) };
+            var response = _mapper.Map<RegistrationResponse>(newStudent);             
+            return response;
         }
 
         /// <summary>
@@ -78,29 +100,32 @@ namespace afi.university.application.Services.Implementation
         /// <param name="courseRegistrationRequest"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<bool> RegisterCourseAsync(CourseRegistrationRequestDto courseRegistration)
+        public async Task<bool> EnrollCourseAsync(CourseRegistrationRequest courseRegistrationRequest)
         {
-            throw new NotSupportedException();
-            //var student = await _studentRepository.GetByIdAsync(courseRegistration.StudentId, false);
-            //if (student == null) return false;
+            // get student
+            var student = await _repository.Users.GetByIdAsync(courseRegistrationRequest.StudentId, false);            
+            if (student == null)
+                throw new StudentNotFoundException(courseRegistrationRequest.StudentId);
 
-            //var course = await _courseRepository.GetCourseByNameAsync(courseRegistration.Name!, false);
-            //if (course == null) return false;
+            // get course
+            var course = await _repository.Courses.GetByIdAsync(courseRegistrationRequest.CourseId, false);
+            if (course == null)
+                throw new CourseNotFoundException(courseRegistrationRequest.CourseId);
 
-            //StudentCourse studentCourse = new()
-            //{
-            //    StudentId = student.Id,
-            //    CourseId = course.Id,
-            //    Student = student,
-            //    Course = course
-            //};
+            // check if not already registered
+            var check = await _repository.StudentCourses.GetByConditionAsync(e => e.StudentId.Equals(student.Id) && e.CourseId.Equals(course.Id), false);
+            var alreadyRegistered = check.FirstOrDefault();
+            if (alreadyRegistered != null)
+                throw new StudentAlreadyRegisteredForCourseException(student.Id, course.Id);
 
-            //var response = await _studentCourseRepository.CreateAsync(studentCourse);
+            StudentCourse studentCourse = _mapper.Map<StudentCourse>(courseRegistrationRequest);
+            studentCourse.DateCreated = DateTime.Now;
+            studentCourse.DateModified = DateTime.Now;
 
-            //if(!response)
-            //    throw new ApplicationException($"Failed to register user ({student.Email}) to course {course.Name}");
-            
-            //return true;
+            await _repository.StudentCourses.CreateAsync(studentCourse);
+            _repository.SaveChangesAsync();
+
+            return true;
         }
 
         /// <summary>
@@ -110,94 +135,48 @@ namespace afi.university.application.Services.Implementation
         /// <param name="courseIds"></param>
         /// <returns></returns>
         /// <exception cref="ApplicationException"></exception>
-        public async Task<bool> UnregisterAsync(CourseRegistrationRequestDto courseRegistration)
+        public async Task<bool> UnregisterAsync(CourseRegistrationRequest courseRegistrationRequest)
         {
-            throw new NotImplementedException ();
-            //var courses = await GetRegisteredCoursesAsync(new StudentCoursesRequestDto() { StudentId = courseRegistration.StudentId });            
-            //if (courses == null) return false;
+            // get student
+            var student = await _repository.Users.GetByIdAsync(courseRegistrationRequest.StudentId, false);
+            if (student == null)
+                throw new StudentNotFoundException(courseRegistrationRequest.StudentId);
 
-            //var course = courses.FirstOrDefault(x => x.Name == courseRegistration.Name);
-            //if (course == null) return false;
+            // get course
+            var course = await _repository.Courses.GetByIdAsync(courseRegistrationRequest.CourseId, false);
+            if (course == null)
+                throw new CourseNotFoundException(courseRegistrationRequest.CourseId);
 
-            //StudentCourse studentCourse = new();
-            //studentCourse.Course!.Id = course.Id;
-            //studentCourse.Course.Name = course.Name;
-            //studentCourse.Course.Duration = course.Duration;
+            await _repository.StudentCourses.DeleteAsync(new StudentCourse()
+            {
+                StudentId = student.Id,
+                CourseId = course.Id,
+            });
 
-            ////TODO: Fix this, it will not work
-            //var response = await _studentCourseRepository.DeleteAsync(course.Id);
-            //if (!response)
-            //    throw new ApplicationException($"Failed to un-register student ({courseRegistration.StudentId}) from course {courseRegistration.Name}");
+            _repository.SaveChangesAsync();
 
-            //// refresh registered courses
-            //return true;
-        }
-
-
-        /// <summary>
-        /// Gets all registered students
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="ApplicationException"></exception>
-        public async Task<List<StudentsResponseDto>> GetAllUniversityStudentsAsync()
-        {
-            throw new NotImplementedException();
-            //var students = await _studentRepository.GetAllAsync(false);
-
-            //List<StudentsResponseDto> response=new();
-            //foreach (var student in students)
-            //{
-            //    response.Add(
-            //        new StudentsResponseDto
-            //        {
-            //            Id = student.Id,
-            //            StudentNumber = student.StudentNumber,
-            //            FirstName = student.FirstName,
-            //            LastName = student.LastName,                        
-            //            Email = student.Email
-            //        }
-            //    );
-            //}
-
-            //return response;
+            return true;
         }
 
 
         #region Private Implementations
         /// <summary>
-        /// Creates student account
+        /// Random string numbers
         /// </summary>
-        /// <param name="registrationRequest"></param>
+        /// <param name="firstname"></param>
+        /// <param name="lastname"></param>
         /// <returns></returns>
-        /// <exception cref="ApplicationException"></exception>
-        private async Task<Student> CreateAccountAsync(StudentRegistrationRequestDto registrationRequest)
-        {
-            throw new NotImplementedException();
-            // TODO: Use Automapper  
-            //Student student = new()
-            //{                
-            //    FirstName = registrationRequest.FirstName,
-            //    LastName = registrationRequest.LastName,
-            //    Email = registrationRequest.Email,
-            //    Password = registrationRequest.Password, //TODO: Encrypt password
-            //    Role = UserRole.Student,
-            //    StudentNumber = GenerateStudentNumber(registrationRequest.FirstName, registrationRequest.LastName)
-            //};
-
-            //var response = await _studentRepository.CreateAsync(student);
-            //if (!response)
-            //    throw new ApplicationException($"Failed to create student ({registrationRequest.Email})");
-
-            //return student;
-        }
-
         private string GenerateStudentNumber(string firstname, string lastname)
-        {            
-            return $"{firstname.Substring(0, 3)} {lastname.Substring(lastname.Length - 3, 3)}";
+        {
+            return GetRandomString(6, firstname, lastname) + DateTime.Now.Year.ToString();            
         }
-
-
-
+        
+        private string GetRandomString(int length, string firstname, string lastname)
+        {
+            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"+ firstname + lastname;
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
 
         #endregion
     }

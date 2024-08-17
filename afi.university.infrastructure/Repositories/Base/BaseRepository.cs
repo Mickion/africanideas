@@ -21,15 +21,10 @@ namespace afi.university.infrastructure.Repositories.Base
             return true;          
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(TEntity entity)
         {
-            var deleteEntity = await _dbContext.Set<TEntity>().FindAsync(id);
-            if(deleteEntity != null)
-            {
-                _dbContext.Set<TEntity>().Remove(deleteEntity);
-                return true;
-            }
-
+            _dbContext.Set<TEntity>().Remove(entity);
+            await Task.CompletedTask;
             return false;
         }
 

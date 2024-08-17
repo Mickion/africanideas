@@ -14,7 +14,7 @@ namespace afi.university.domain.Repositories.Base
 
         Task<bool> CreateAsync(TEntity entity);
 
-        Task<bool> DeleteAsync(Guid id);
+        Task<bool> DeleteAsync(TEntity entity);
 
     }
 }

@@ -1,6 +1,4 @@
-﻿using afi.university.application.Models.Requests;
-using afi.university.application.Models.Responses;
-using afi.university.shared.DataTransferObjects.Requests;
+﻿using afi.university.shared.DataTransferObjects.Requests;
 using afi.university.shared.DataTransferObjects.Responses;
 
 namespace afi.university.application.Services.Interfaces
@@ -14,36 +12,33 @@ namespace afi.university.application.Services.Interfaces
         Task<IEnumerable<StudentResponse>> GetAllStudentsAsync();
 
         /// <summary>
+        /// Gets all registered course for student
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<StudentResponse> GetStudentRegisteredCoursesAsync(StudentRequest studentRequest);
+
+        /// <summary>
         /// Enrolls student to the University
         /// </summary>
         /// <param name="registrationRequest"></param>
         /// <returns></returns>
-        Task<StudentRegistrationResponseDto> RegisterToUniversityAsync(StudentRegistrationRequestDto registrationRequest);
+        Task<RegistrationResponse> RegisterStudentAsync(RegistrationRequest registrationRequest);
 
         /// <summary>
         /// Unregister a specific course
         /// </summary>
         /// <returns></returns>
-        Task<bool> UnregisterAsync(CourseRegistrationRequestDto courseRegistration);
+        Task<bool> UnregisterAsync(CourseRegistrationRequest courseRegistrationRequest);
 
         /// <summary>
         /// Enrolls a student to a particular course(s)
         /// </summary>
         /// <param name="registrationRequest"></param>
         /// <returns></returns>
-        Task<bool> RegisterCourseAsync(CourseRegistrationRequestDto courseRegistration);
+        Task<bool> EnrollCourseAsync(CourseRegistrationRequest courseRegistrationRequest);
 
-        /// <summary>
-        /// Gets all registered course for student
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        Task<StudentResponse> GetStudentCoursesAsync(StudentRequest studentRequest);
 
-        /// <summary>
-        /// Gets all University students
-        /// </summary>
-        /// <returns></returns>
-        Task<List<StudentsResponseDto>> GetAllUniversityStudentsAsync();
+
     }
 }

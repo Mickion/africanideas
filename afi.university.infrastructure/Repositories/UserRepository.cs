@@ -19,7 +19,12 @@ namespace afi.university.infrastructure.Repositories
         {
             var user = await GetByConditionAsync(c => c.Email!.Equals(username) && c.Password!.Equals(password), trackChanges);
             return user!.SingleOrDefault(); //TODO: Deal with this
+        }
 
+        public async Task<User> GetUserByEmailAsync(string email, bool trackChanges)
+        {
+            var student = await GetByConditionAsync(c => c.Email!.Equals(email), trackChanges);
+            return student!.SingleOrDefault(); //TODO: Deal with this
         }
     }
 }

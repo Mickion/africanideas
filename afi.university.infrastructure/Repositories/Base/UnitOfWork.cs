@@ -32,10 +32,10 @@ namespace afi.university.infrastructure.Repositories.Base
 
         public IStudentCourseRepository StudentCourses => _studentCourseRepository.Value;
 
-        public void SaveChangesAsync()
+        public async void SaveChangesAsync()
         {
             //All the changes will be applied or if something fails, all the changes will be reverted:
-            _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
