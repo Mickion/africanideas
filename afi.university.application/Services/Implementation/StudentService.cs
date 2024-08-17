@@ -147,6 +147,12 @@ namespace afi.university.application.Services.Implementation
             if (course == null)
                 throw new CourseNotFoundException(courseRegistrationRequest.CourseId);
 
+            // check if registered
+            var check = await _repository.StudentCourses.GetByConditionAsync(e => e.StudentId.Equals(student.Id) && e.CourseId.Equals(course.Id), false);
+            var alreadyRegistered = check.FirstOrDefault();
+            if (alreadyRegistered == null)
+                throw new NotFoundException($"Student ID {student.Id} and Course ID {course.Id} not found to de-register");
+
             await _repository.StudentCourses.DeleteAsync(new StudentCourse()
             {
                 StudentId = student.Id,

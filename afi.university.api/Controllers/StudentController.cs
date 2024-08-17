@@ -1,5 +1,6 @@
 ﻿using afi.university.application.Common.Exceptions;
 using afi.university.application.Services.Interfaces;
+using afi.university.domain.Entities;
 using afi.university.shared.DataTransferObjects.Requests;
 using afi.university.shared.DataTransferObjects.Responses;
 using Microsoft.AspNetCore.Authorization;
@@ -106,10 +107,9 @@ namespace afi.university.api.Controllers
                 return BadRequest(ex.Message);
             }
 
-            if (response == null) return BadRequest();
-            
-            return Ok(response);
+            return (response == null) ? BadRequest() : Ok(response);
         }
+
 
         /// <summary>
         /// Registers a student to a course/courses
@@ -149,7 +149,7 @@ namespace afi.university.api.Controllers
                 return BadRequest(ex.Message);
             }
 
-            return Ok(response);
+            return Ok(response);            
         }
 
 

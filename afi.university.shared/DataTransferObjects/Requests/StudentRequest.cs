@@ -1,4 +1,8 @@
-﻿namespace afi.university.shared.DataTransferObjects.Requests
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace afi.university.shared.DataTransferObjects.Requests
 {
-    public record StudentRequest(Guid StudentId);
+    public record StudentRequest(Guid StudentId)
+    {
+    }
 }

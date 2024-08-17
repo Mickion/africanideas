@@ -1,12 +1,13 @@
-﻿using afi.university.application.Models.Requests;
-using afi.university.application.Models.Responses;
+﻿using afi.university.shared.DataTransferObjects.Requests;
+using afi.university.shared.DataTransferObjects.Responses;
 
 namespace afi.university.application.Services.Interfaces
 {
     public interface ICourseService
     {
-        Task<bool> AddCourseAsync(CourseRequestDto courseRequest);
+        Task<IEnumerable<StudentCoursesResponse>> GetAllCoursesAsync();
 
-        Task<List<StudentCoursesDto>> GetAllCoursesAsync();
+        Task<bool> AddCourseAsync(CreateCourseRequest createCourseRequest);
+
     }
 }
