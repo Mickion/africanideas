@@ -17,6 +17,7 @@ namespace afi.university.api
                 var context = services.GetRequiredService<ApplicationDbContext>();
                 InitializeUsers(context);
                 InitializeCourses(context);
+                InitializeStudentCourse(context);
             }
             catch (Exception)
             {
@@ -51,7 +52,7 @@ namespace afi.university.api
                 },
                 new Student
                 {
-                    Id =new Guid(),
+                    Id =new Guid("ec35b9d8-ae83-4c76-9a48-86bb796005bd"),
                     FirstName = "Mthokozisi",
                     LastName = "Mazibuko",
                     Email = "mickion@gmail.com",
@@ -71,6 +72,18 @@ namespace afi.university.api
                     Password = "pass",
                     Role = domain.Common.Enums.UserRole.Lecture,
                     YearsOfExperience = 13,
+                    DateCreated = DateTime.Now,
+                    DateModified = DateTime.Now
+                },
+                new Student
+                {
+                    Id = new Guid("2c155c53-1fd3-4a79-9801-aacf52eb3da6"),
+                    FirstName = "Cebo",
+                    LastName = "Dladla",
+                    Email = "cebo@gmail.com",
+                    Password = "pass",
+                    Role = domain.Common.Enums.UserRole.Student,
+                    StudentNumber = "CeboDla2024",
                     DateCreated = DateTime.Now,
                     DateModified = DateTime.Now
                 }
@@ -96,7 +109,7 @@ namespace afi.university.api
             {
                 new Course
                 {
-                    Id = new Guid(),
+                    Id = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce2"),
                     Name= "BSC Bachelor Of Computer Science",
                     NQFLevel = 7,
                     Duration = 4,
@@ -134,6 +147,33 @@ namespace afi.university.api
 
             foreach (var course in courses)
                 dbContext.Courses!.Add(course);
+
+            dbContext.SaveChanges();
+        }
+
+        /// <summary>
+        /// Seeds Student Course test data
+        /// </summary>
+        /// <param name="dbContext"></param>
+        private static void InitializeStudentCourse(ApplicationDbContext dbContext)
+        {
+            ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
+            dbContext.Database.EnsureCreated();
+            if (dbContext.StudentCourses!.Any()) return;
+
+            var studcourses = new StudentCourse[]
+            {
+                new StudentCourse
+                {
+                    StudentId = new Guid("ec35b9d8-ae83-4c76-9a48-86bb796005bd"),
+                    CourseId = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce2"),
+                    DateCreated = DateTime.Now,
+                    DateModified= DateTime.Now
+                }               
+            };
+
+            foreach (var studco in studcourses)
+                dbContext.StudentCourses!.Add(studco);
 
             dbContext.SaveChanges();
         }

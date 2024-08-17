@@ -1,27 +1,21 @@
-﻿using afi.university.application.Models.Requests;
+﻿using afi.university.domain.Entities;
+using afi.university.domain.Repositories.Base;
+using afi.university.application.Models.Requests;
 using afi.university.application.Models.Responses;
 using afi.university.application.Services.Interfaces;
-using afi.university.domain.Entities;
-using afi.university.domain.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace afi.university.application.Services.Implementation
 {
     internal class CourseService : ICourseService
     {
-        private readonly ICourseRepository _courseRepository;
-
-        public CourseService(ICourseRepository courseRepository)
-        {
-            this._courseRepository = courseRepository;
+        private readonly IUnitOfWork _repository;
+        public CourseService(IUnitOfWork unitOfWork)
+        {            
+            this._repository = unitOfWork;
         }
         public async Task<bool> AddCourseAsync(CourseRequestDto courseRequest)
         {
-            var response = await _courseRepository.CreateAsync(new Course() { Name= courseRequest.Name, Duration= courseRequest.Duration});
+            var response = await _repository.Courses.CreateAsync(new Course() { Name= courseRequest.Name, Duration= courseRequest.Duration});
             if (!response)
                 throw new ApplicationException($"Failed to create course ({courseRequest.Name})");
 
@@ -30,7 +24,7 @@ namespace afi.university.application.Services.Implementation
 
         public async Task<List<StudentCoursesDto>> GetAllCoursesAsync()
         {
-            var courses = await _courseRepository.GetAllAsync(false);
+            var courses = await _repository.Courses.GetAllAsync(false);
 
             
             List<StudentCoursesDto> response = new();

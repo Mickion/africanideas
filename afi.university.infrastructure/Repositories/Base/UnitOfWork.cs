@@ -30,7 +30,7 @@ namespace afi.university.infrastructure.Repositories.Base
 
         public ILectureRepository Lectures => _lectureRepository.Value;
 
-        public IStudentCourseRepository StudentsCourse => _studentCourseRepository.Value;
+        public IStudentCourseRepository StudentCourses => _studentCourseRepository.Value;
 
         public void SaveChangesAsync()
         {

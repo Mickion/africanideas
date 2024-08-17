@@ -10,7 +10,7 @@
 
         ILectureRepository Lectures { get; }
 
-        IStudentCourseRepository StudentsCourse { get; }
+        IStudentCourseRepository StudentCourses { get; }
 
         void SaveChangesAsync();
     }

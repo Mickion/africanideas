@@ -17,8 +17,9 @@ namespace afi.university.application
         public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {            
             services.AddTransient<IUserService, UserService>();
-            //services.AddTransient<ICourseService, CourseService>();
-            //services.AddTransient<IStudentService, StudentService>();
+            services.AddTransient<ICourseService, CourseService>();
+            services.AddTransient<IStudentService, StudentService>();
+            //services.AddTransient<IStudentCourseService, StudentService>();
             
             return services;
         }

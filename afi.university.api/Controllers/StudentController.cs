@@ -1,13 +1,13 @@
-﻿using afi.university.application.Models.Requests;
-using afi.university.application.Models.Responses;
+﻿using afi.university.application.Common.Exceptions;
 using afi.university.application.Services.Interfaces;
-using afi.university.domain.Entities;
+using afi.university.shared.DataTransferObjects.Requests;
+using afi.university.shared.DataTransferObjects.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace afi.university.api.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/students")]
     [ApiController]
     public class StudentController : ControllerBase
     {
@@ -23,32 +23,91 @@ namespace afi.university.api.Controllers
         }
 
         /// <summary>
+        /// Get all students
+        /// </summary>
+        /// <returns></returns>
+        
+        [HttpGet]
+        //[Authorize(Roles = "Admin, Lecture")]
+        public async Task<ActionResult<IEnumerable<StudentResponse>>> GetAllStudents()
+        {
+            IEnumerable<StudentResponse> students;
+            try
+            {
+                students = await _studentService.GetAllStudentsAsync();                
+            }
+            catch(NotFoundException ex)
+            {
+                _logger.LogWarning("Failed getting list of students {0} - ", ex.Message);
+                return NoContent();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError("Failed getting list of students {0} - ", ex);
+                return BadRequest(ex.Message);
+            }
+
+           
+            return (!students.Any()) ? NotFound() : Ok(students);
+        }
+
+        /// <summary>
+        /// Get student courses
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <returns></returns>
+
+        [HttpGet("{id:guid}")]
+        //[Authorize(Roles = "Student")]
+        public async Task<ActionResult<StudentResponse>> GetStudentCourses(Guid id)
+        {
+            StudentResponse student;
+            try
+            {
+                StudentRequest studentRequest = new StudentRequest(id);
+                student = await _studentService.GetStudentCoursesAsync(studentRequest);
+            }
+            catch (StudentNotFoundException ex)
+            {
+                _logger.LogWarning("Failed getting student {0} - ", ex.Message);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Failed getting list of students {0} - ", ex);
+                return BadRequest(ex.Message);
+            }
+
+            return (student == null) ? NotFound() : Ok(student);
+        }
+
+        /// <summary>
         /// Registers student to the University
         /// </summary>
         /// <param name="studentRegistration"></param>
         /// <returns></returns>
-        [AllowAnonymous]
-        [HttpPost(Name = "RegisterToUniversity")]
-        public async Task<ActionResult<StudentRegistrationResponseDto>> RegisterToUniversity(StudentRegistrationRequestDto studentRegistration)
-        {
-            StudentRegistrationResponseDto response=new();
-            try
-            {
-                response = await _studentService.RegisterToUniversityAsync(studentRegistration);
-            }
-            catch (ApplicationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch(Exception ex)
-            {
-                var tst = ex;
-            }
+        //[AllowAnonymous]
+        //[HttpPost]
+        //public async Task<ActionResult<StudentRegistrationResponseDto>> RegisterStudent(StudentRegistrationRequestDto studentRegistration)
+        //{
+        //    StudentRegistrationResponseDto response = new();
+        //    try
+        //    {
+        //        response = await _studentService.RegisterToUniversityAsync(studentRegistration);
+        //    }
+        //    catch (ApplicationException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var tst = ex;
+        //    }
 
-            if (response == null) return BadRequest();
+        //    if (response == null) return BadRequest();
 
-            return Ok(response);
-        }
+        //    return Ok(response);
+        //}
 
         /// <summary>
         /// Registers a student to a course/courses
@@ -56,80 +115,54 @@ namespace afi.university.api.Controllers
         /// <param name="studentId"></param>
         /// <param name="studentCourses"></param>
         /// <returns></returns>
-        [Authorize(Roles = "Student")]
-        [HttpPost(Name = "RegisterCourse")]
-        public async Task<ActionResult<bool>> RegisterCourse(CourseRegistrationRequestDto courseRegistration)
-        {
-            bool response;
-            try
-            {
-                response = await _studentService.RegisterCourseAsync(courseRegistration);
-            }
-            catch (ApplicationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }        
+        //[Authorize(Roles = "Student")]
+        //[HttpPost(Name = "RegisterCourse")]
+        //public async Task<ActionResult<bool>> RegisterCourse(CourseRegistrationRequestDto courseRegistration)
+        //{
+        //    bool response;
+        //    try
+        //    {
+        //        response = await _studentService.RegisterCourseAsync(courseRegistration);
+        //    }
+        //    catch (ApplicationException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }        
 
-            return Ok(response);
-        }
+        //    return Ok(response);
+        //}
 
 
-        /// <summary>
-        /// Gets all student registered courses
-        /// </summary>
-        /// <param name="studentId"></param>
-        /// <returns></returns>
-        [Authorize(Roles = "Student")]
-        [HttpPost(Name = "GetStudentRegisteredCourses")]
-        public async Task<ActionResult<List<StudentCoursesDto>>> GetStudentRegisteredCourses(StudentCoursesRequestDto studentCoursesRequest)
-        {
-            List<StudentCoursesDto> studentCourses=new();
-            try
-            {
-                studentCourses = await _studentService.GetRegisteredCoursesAsync(studentCoursesRequest);
-            }
-            catch (ApplicationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch(Exception ex)
-            {
-                var ext = ex;
-            }
 
-            if (studentCourses == null) return BadRequest();
-
-            return Ok(studentCourses);
-        }
 
 
         /// <summary>
         /// Gets all University courses
         /// </summary>
         /// <returns></returns>
-        [Authorize(Roles = "Student")]
-        [HttpGet(Name = "GetAllAvailableCourses")]
-        public async Task<ActionResult<List<StudentCoursesDto>>> GetAllAvailableCourses()
-        {
-            List<StudentCoursesDto> universityCourses;
-            try
-            {
-                universityCourses = await _courseService.GetAllCoursesAsync();
-            }
-            catch (ApplicationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+        //[Authorize(Roles = "Student")]
+        //[HttpGet(Name = "GetAllAvailableCourses")]
+        //public async Task<ActionResult<List<StudentCoursesDto>>> GetAllAvailableCourses()
+        //{
+        //    List<StudentCoursesDto> universityCourses;
+        //    try
+        //    {
+        //        universityCourses = await _courseService.GetAllCoursesAsync();
+        //    }
+        //    catch (ApplicationException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
 
 
-            if (universityCourses == null) return BadRequest();
+        //    if (universityCourses == null) return BadRequest();
 
-            return Ok(universityCourses);
-        }
+        //    return Ok(universityCourses);
+        //}
 
 
         /// <summary>
@@ -138,47 +171,47 @@ namespace afi.university.api.Controllers
         /// <param name="studentId"></param>
         /// <param name="studentCourses"></param>
         /// <returns></returns>
-        [Authorize(Roles = "Student")]
-        [HttpPost(Name = "UnregisterFromACourse")]
-        public async Task<ActionResult<bool>> UnregisterFromACourse(CourseRegistrationRequestDto courseRegistration)
-        {
-            bool response;
-            try
-            {
-                response = await _studentService.UnregisterAsync(courseRegistration);
-            }
-            catch (ApplicationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+        //[Authorize(Roles = "Student")]
+        //[HttpPost(Name = "UnregisterFromACourse")]
+        //public async Task<ActionResult<bool>> UnregisterFromACourse(CourseRegistrationRequestDto courseRegistration)
+        //{
+        //    bool response;
+        //    try
+        //    {
+        //        response = await _studentService.UnregisterAsync(courseRegistration);
+        //    }
+        //    catch (ApplicationException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
 
-            return Ok(response);
-        }
+        //    return Ok(response);
+        //}
 
 
         /// <summary>
         /// Gets all university students
         /// </summary>
         /// <returns></returns>
-        [Authorize(Roles = "Admin")]
-        [HttpGet(Name = "GetAllUniversityStudents")]
-        public async Task<ActionResult<List<StudentsResponseDto>>> GetAllUniversityStudents()
-        {
-            List<StudentsResponseDto> response;
-            try
-            {
-                response = await _studentService.GetAllUniversityStudentsAsync();
-            }
-            catch (ApplicationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+        //[Authorize(Roles = "Admin")]
+        //[HttpGet(Name = "GetAllUniversityStudents")]
+        //public async Task<ActionResult<List<StudentsResponseDto>>> GetAllUniversityStudents()
+        //{
+        //    List<StudentsResponseDto> response;
+        //    try
+        //    {
+        //        response = await _studentService.GetAllUniversityStudentsAsync();
+        //    }
+        //    catch (ApplicationException ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
 
-            return Ok(response);
-        }
+        //    return Ok(response);
+        //}
     }
 }

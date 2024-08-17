@@ -6,7 +6,7 @@ namespace afi.university.shared.DataTransferObjects.Responses
     {
         public string? Token { get; set; }
 
-        public LoginResponse() : this(default, string.Empty, string.Empty, string.Empty, default)
+        public LoginResponse() : this(default, default, default, default, default)
         {
 
         }

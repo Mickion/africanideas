@@ -35,7 +35,7 @@ namespace afi.university.api.Controllers
             }            
             catch (InvalidCredentialsException ex)
             {
-                _logger.LogWarning("Failed login attempt {0} - ",  ex);
+                _logger.LogWarning("Failed login attempt {0} - ",  ex.Message);
                 return Unauthorized(ex.Message);
             }
             catch(Exception ex)
