@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "afi.university.infrastructu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "afi.university.domain", "afi.university.domain\afi.university.domain.csproj", "{CE719F25-8DDD-4AB3-A471-E5C2DC656E4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "afi.university.shared", "afi.university.shared\afi.university.shared.csproj", "{E14FF33E-4BCA-483C-81D7-4DC802BAE6D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "afi.university.shared", "afi.university.shared\afi.university.shared.csproj", "{E14FF33E-4BCA-483C-81D7-4DC802BAE6D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

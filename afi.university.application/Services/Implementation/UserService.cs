@@ -16,15 +16,17 @@ namespace afi.university.application.Services.Implementation
 {
     internal sealed class UserService : IUserService
     {
-        private readonly IMapper _mapper;
+        private readonly IMapper _mapper;        
         private readonly IUnitOfWork _repository;
         private readonly IConfiguration _configuration;
-        
-        public UserService(IUnitOfWork repositories, IConfiguration configuration, IMapper mapper)
+        private readonly IPasswordHasher _passwordHasher;
+
+        public UserService(IUnitOfWork repositories, IConfiguration configuration, IMapper mapper, IPasswordHasher passwordHasher)
         {
             this._mapper = mapper;
             this._repository = repositories;
-            this._configuration = configuration;            
+            this._configuration = configuration;
+            this._passwordHasher = passwordHasher;
         }
 
         /// <summary>
@@ -40,10 +42,12 @@ namespace afi.university.application.Services.Implementation
                 throw new InvalidCredentialsException("Invalid Username or Password.");
 
             // dont track changes for performance improvements
-            User user = await _repository.Users.GetUserLoginsAsync(loginRequest.Email, loginRequest.Password, false);
-
-            if (user == null)
+            User user = await _repository.Users.GetUserByEmailAsync(loginRequest.Email, trackChanges: false) ?? throw new InvalidCredentialsException("Invalid Username or Password.");
+            
+            if (!_passwordHasher.VerifyPassword(loginRequest.Password, user.Password!))
+            {
                 throw new InvalidCredentialsException("Invalid Username or Password.");
+            }
 
             LoginResponse loginResponse = _mapper.Map<LoginResponse>(user);
             loginResponse.Token = GenerateToken(user);

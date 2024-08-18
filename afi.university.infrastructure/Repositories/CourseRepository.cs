@@ -11,14 +11,15 @@ namespace afi.university.infrastructure.Repositories
 
         public override async Task<Course> GetByIdAsync(Guid courseId, bool trackChanges)
         {
-            var course = await GetByConditionAsync(c => c.Id.Equals(courseId), trackChanges);
-            return course!.SingleOrDefault(); //TODO: Deal with this
+            var courses = await GetByConditionAsync(c => c.Id.Equals(courseId), trackChanges);
+            return courses.SingleOrDefault();
+
         }
 
         public async Task<Course> GetCourseByNameAsync(string courseName, bool trackChanges)
         {
-            var course = await GetByConditionAsync(c => c.Name!.Equals(courseName), trackChanges);            
-            return course?.SingleOrDefault();
+            var courses = await GetByConditionAsync(c => c.Name!.Equals(courseName), trackChanges);            
+            return courses.SingleOrDefault();
         }
     }
 }

@@ -16,5 +16,7 @@ namespace afi.university.domain.Repositories.Base
 
         Task<bool> DeleteAsync(TEntity entity);
 
+        Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> expression, bool trackChanges);
+
     }
 }

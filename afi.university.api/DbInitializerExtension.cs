@@ -1,12 +1,15 @@
-﻿using afi.university.domain.Entities;
+﻿using afi.university.application.Services.Interfaces;
+using afi.university.domain.Entities;
 using afi.university.domain.Entities.Base;
 using afi.university.infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
+using afi.university.application.Services;
 
 namespace afi.university.api
 {
     internal static class DbInitializerExtension
-    {        
-        public static IApplicationBuilder UseSeedInMemoryDb(this IApplicationBuilder app)
+    {
+        public static IApplicationBuilder UseSeedInMemoryDb(this IApplicationBuilder app, IPasswordHasher passwordHasher)
         {
             ArgumentNullException.ThrowIfNull(app, nameof(app));
 
@@ -15,7 +18,7 @@ namespace afi.university.api
             try
             {
                 var context = services.GetRequiredService<ApplicationDbContext>();
-                InitializeUsers(context);
+                InitializeUsers(context, passwordHasher);
                 InitializeCourses(context);
                 InitializeStudentCourse(context);
             }
@@ -31,8 +34,8 @@ namespace afi.university.api
         /// Seeds User test data
         /// </summary>
         /// <param name="dbContext"></param>
-        private static void InitializeUsers(ApplicationDbContext dbContext)
-        {
+        private static void InitializeUsers(ApplicationDbContext dbContext, IPasswordHasher passwordHasher)
+        {            
             ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
             dbContext.Database.EnsureCreated();
             if (dbContext.Users!.Any()) return;
@@ -45,7 +48,7 @@ namespace afi.university.api
                     FirstName = "admin",
                     LastName = "admin",
                     Email = "admin@gmail.com",
-                    Password = "pass",
+                    Password = passwordHasher.HashPassword("pass"),
                     Role = domain.Common.Enums.UserRole.Admin,
                     DateCreated = DateTime.Now,
                     DateModified = DateTime.Now
@@ -56,7 +59,7 @@ namespace afi.university.api
                     FirstName = "Mthokozisi",
                     LastName = "Mazibuko",
                     Email = "mickion@gmail.com",
-                    Password = "pass",
+                    Password = passwordHasher.HashPassword("pass"),
                     Role = domain.Common.Enums.UserRole.Student,
                     StudentNumber = "MthoMaz2024",
                     DateCreated = DateTime.Now,
@@ -69,7 +72,7 @@ namespace afi.university.api
                     FirstName = "Petunia",
                     LastName = "Mazibuko",
                     Email = "petunia@gmail.com",
-                    Password = "pass",
+                    Password = passwordHasher.HashPassword("pass"),
                     Role = domain.Common.Enums.UserRole.Lecture,
                     YearsOfExperience = 13,
                     DateCreated = DateTime.Now,
@@ -81,7 +84,7 @@ namespace afi.university.api
                     FirstName = "Cebo",
                     LastName = "Dladla",
                     Email = "cebo@gmail.com",
-                    Password = "pass",
+                    Password = passwordHasher.HashPassword("pass"),
                     Role = domain.Common.Enums.UserRole.Student,
                     StudentNumber = "CeboDla2024",
                     DateCreated = DateTime.Now,

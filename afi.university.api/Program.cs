@@ -1,8 +1,9 @@
 using afi.university.application;
 using afi.university.infrastructure;
 using afi.university.api;
-using AutoMapper;
 using afi.university.application.Common.Mappings;
+using afi.university.application.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +32,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseSeedInMemoryDb();    //seed test data
+    app.UseSeedInMemoryDb(app.Services.GetRequiredService<IPasswordHasher>());  //seed test data
 }
 
 app.UseCors(builder => builder

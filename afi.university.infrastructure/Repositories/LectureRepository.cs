@@ -11,8 +11,8 @@ namespace afi.university.infrastructure.Repositories
 
         public async override Task<Lecture> GetByIdAsync(Guid lectureId, bool trackChanges)
         {
-            var lecture = await GetByConditionAsync(c => c.Id.Equals(lectureId), trackChanges);
-            return lecture!.SingleOrDefault(); //TODO: Deal with this
+            var lectures = await GetByConditionAsync(c => c.Id.Equals(lectureId), trackChanges);
+            return lectures.SingleOrDefault();
         }
     }
 }

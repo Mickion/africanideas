@@ -11,13 +11,15 @@ namespace afi.university.application.Services.Implementation
 {
     internal class StudentService : IStudentService
     {     
-        private readonly IMapper _mapper;
+        private readonly IMapper _mapper;        
         private readonly IUnitOfWork _repository;
         private readonly Random random = new Random();
+        private readonly IPasswordHasher _passwordHasher;
 
-        public StudentService(IUnitOfWork unitOfWork, IMapper mapper)
+        public StudentService(IUnitOfWork unitOfWork, IMapper mapper, IPasswordHasher passwordHasher)
         {
             this._mapper = mapper;
+            this._passwordHasher = passwordHasher;
             this._repository = unitOfWork;            
         }
 
@@ -28,11 +30,8 @@ namespace afi.university.application.Services.Implementation
         /// <exception cref="NotFoundException"></exception>
         public async Task<IEnumerable<StudentResponse>> GetAllStudentsAsync()
         {
-            var students = await _repository.Users.GetByConditionAsync(e => e.Role.Equals(UserRole.Student), false);      
-            if(students == null)
-                throw new NotFoundException("Students not found.");
-
-            return _mapper.Map<ICollection<StudentResponse>>(students);
+            var students = await _repository.Users.GetByConditionAsync(e => e.Role.Equals(UserRole.Student), false);
+            return students == null ? throw new NotFoundException("Students not found.") : (IEnumerable<StudentResponse>)_mapper.Map<ICollection<StudentResponse>>(students);
         }
 
         /// <summary>
@@ -44,10 +43,8 @@ namespace afi.university.application.Services.Implementation
         public async Task<StudentResponse> GetStudentRegisteredCoursesAsync(StudentRequest studentRequest)
         {
             // get student
-            var student = await _repository.Students.GetByIdAsync(studentRequest.StudentId, false);
-            if (student == null)
-                throw new StudentNotFoundException(studentRequest.StudentId);
-            
+            var student = await GetStudentIfExistsAsync(studentRequest.StudentId);
+
             var response = _mapper.Map<StudentResponse>(student);
 
             // get student courses
@@ -75,16 +72,16 @@ namespace afi.university.application.Services.Implementation
         /// <returns></returns>
         public async Task<RegistrationResponse> RegisterStudentAsync(RegistrationRequest registrationRequest)
         {
-            // get student
-            var student = await _repository.Users.GetUserByEmailAsync(registrationRequest.Email!, false);            
-            if (student != null)            
-                throw new StudentAlreadyExistsException(registrationRequest.Email!);            
-                
+            // check student
+            if (await _repository.Students.ExistsAsync(c => c.Email!.Equals(registrationRequest.Email), trackChanges: false))            
+                throw new StudentAlreadyExistsException(registrationRequest.Email!);           
+
             Student newStudent = _mapper.Map<Student>(registrationRequest);
             newStudent.StudentNumber = GenerateStudentNumber(newStudent.FirstName!, newStudent.LastName!);
             newStudent.DateCreated = DateTime.Now;
             newStudent.DateModified = DateTime.Now;
-            newStudent.Role = UserRole.Student;
+            newStudent.Role = UserRole.Student;            
+            newStudent.Password = _passwordHasher.HashPassword(registrationRequest.Password!);
             
             await _repository.Users.CreateAsync(newStudent);
             _repository.SaveChangesAsync();
@@ -103,20 +100,16 @@ namespace afi.university.application.Services.Implementation
         public async Task<bool> EnrollCourseAsync(CourseRegistrationRequest courseRegistrationRequest)
         {
             // get student
-            var student = await _repository.Users.GetByIdAsync(courseRegistrationRequest.StudentId, false);            
-            if (student == null)
-                throw new StudentNotFoundException(courseRegistrationRequest.StudentId);
+            var student = await GetStudentIfExistsAsync(courseRegistrationRequest.StudentId);
 
             // get course
-            var course = await _repository.Courses.GetByIdAsync(courseRegistrationRequest.CourseId, false);
-            if (course == null)
-                throw new CourseNotFoundException(courseRegistrationRequest.CourseId);
+            var course = await GetCourseIfExistsAsync(courseRegistrationRequest.CourseId);
 
-            // check if not already registered
-            var check = await _repository.StudentCourses.GetByConditionAsync(e => e.StudentId.Equals(student.Id) && e.CourseId.Equals(course.Id), false);
-            var alreadyRegistered = check.FirstOrDefault();
-            if (alreadyRegistered != null)
+            // check if not already
+            if(await _repository.StudentCourses.ExistsAsync(e => e.StudentId.Equals(student.Id) && e.CourseId.Equals(course.Id), trackChanges: false))
+            {
                 throw new StudentAlreadyRegisteredForCourseException(student.Id, course.Id);
+            }                
 
             StudentCourse studentCourse = _mapper.Map<StudentCourse>(courseRegistrationRequest);
             studentCourse.DateCreated = DateTime.Now;
@@ -138,21 +131,15 @@ namespace afi.university.application.Services.Implementation
         public async Task<bool> UnregisterAsync(CourseRegistrationRequest courseRegistrationRequest)
         {
             // get student
-            var student = await _repository.Users.GetByIdAsync(courseRegistrationRequest.StudentId, false);
-            if (student == null)
-                throw new StudentNotFoundException(courseRegistrationRequest.StudentId);
+            var student = await GetStudentIfExistsAsync(courseRegistrationRequest.StudentId);
 
             // get course
-            var course = await _repository.Courses.GetByIdAsync(courseRegistrationRequest.CourseId, false);
-            if (course == null)
-                throw new CourseNotFoundException(courseRegistrationRequest.CourseId);
+            var course = await GetCourseIfExistsAsync(courseRegistrationRequest.CourseId);
 
-            // check if registered
+            // check if registered to the course
             var check = await _repository.StudentCourses.GetByConditionAsync(e => e.StudentId.Equals(student.Id) && e.CourseId.Equals(course.Id), false);
-            var alreadyRegistered = check.FirstOrDefault();
-            if (alreadyRegistered == null)
-                throw new NotFoundException($"Student ID {student.Id} and Course ID {course.Id} not found to de-register");
-
+            var alreadyRegistered = check.FirstOrDefault() ?? throw new NotFoundException($"Student ID {student.Id} and Course ID {course.Id} not found to de-register");
+            
             await _repository.StudentCourses.DeleteAsync(new StudentCourse()
             {
                 StudentId = student.Id,
@@ -160,12 +147,36 @@ namespace afi.university.application.Services.Implementation
             });
 
             _repository.SaveChangesAsync();
-
             return true;
         }
 
 
         #region Private Implementations
+
+        /// <summary>
+        /// Gets an existing course
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <returns>Course</returns>
+        /// <exception cref="CourseNotFoundException"></exception>
+        private async Task<Course> GetCourseIfExistsAsync(Guid courseId)
+        {
+            var course = await _repository.Courses.GetByIdAsync(courseId, false);
+            return course ?? throw new CourseNotFoundException(courseId);
+        }
+
+        /// <summary>
+        /// Gets an existing student by id
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <returns>Student</returns>
+        /// <exception cref="StudentNotFoundException"></exception>
+        private async Task<Student> GetStudentIfExistsAsync(Guid studentId)
+        {
+            var student = await _repository.Students.GetByIdAsync(studentId, false);
+            return student ?? throw new StudentNotFoundException(studentId);
+        }
+
         /// <summary>
         /// Random string numbers
         /// </summary>

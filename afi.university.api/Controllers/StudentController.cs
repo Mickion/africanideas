@@ -27,7 +27,7 @@ namespace afi.university.api.Controllers
         /// <returns></returns>
         
         [HttpGet]
-        [Authorize(Roles = "Admin, Lecture")]
+        //[Authorize(Roles = "Admin, Lecture")]
         public async Task<ActionResult<IEnumerable<StudentResponse>>> GetAllStudentsAsync()
         {
             IEnumerable<StudentResponse> students;
@@ -38,7 +38,7 @@ namespace afi.university.api.Controllers
             catch(NotFoundException ex)
             {
                 _logger.LogWarning("Failed getting list of students {0} - ", ex.Message);
-                return NoContent();
+                return BadRequest(ex.Message);
             }
             catch(Exception ex)
             {
@@ -57,7 +57,7 @@ namespace afi.university.api.Controllers
         /// <returns></returns>
 
         [HttpGet("{id:guid}")]
-        [Authorize(Roles = "Student")]
+        //[Authorize(Roles = "Student")]
         public async Task<ActionResult<StudentResponse>> GetStudentCoursesAsync(Guid id)
         {
             StudentResponse student;
@@ -69,7 +69,7 @@ namespace afi.university.api.Controllers
             catch (StudentNotFoundException ex)
             {
                 _logger.LogWarning("Failed getting student {0} - ", ex.Message);
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
@@ -120,7 +120,7 @@ namespace afi.university.api.Controllers
         
         [HttpPost]
         [Route("enroll")]
-        [Authorize(Roles = "Student")]
+        //[Authorize(Roles = "Student")]
         public async Task<ActionResult<bool>> EnrollCourseAsync([FromBody] CourseRegistrationRequest courseRegistrationRequest)
         {
             bool response;
@@ -131,7 +131,7 @@ namespace afi.university.api.Controllers
             catch (StudentNotFoundException ex)
             {
                 _logger.LogWarning("Failed course registration {0} - ", ex.Message);
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message); 
             }
             catch (CourseNotFoundException ex)
             {
@@ -162,7 +162,7 @@ namespace afi.university.api.Controllers
         
         [HttpPost]
         [Route("unenroll")]
-        [Authorize(Roles = "Student")]
+        //[Authorize(Roles = "Student")]
         public async Task<ActionResult<bool>> UnregisterFromACourse([FromBody] CourseRegistrationRequest courseRegistrationRequest)
         {
             bool response;

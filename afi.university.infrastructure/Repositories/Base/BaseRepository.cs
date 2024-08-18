@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace afi.university.infrastructure.Repositories.Base
 {
-    internal abstract class BaseRepository<TEntity, TDbContext> : IBaseRepository<TEntity> 
+    internal abstract class BaseRepository<TEntity, TDbContext> : IBaseRepository<TEntity>
         where TEntity : class
         where TDbContext : DbContext
     {
@@ -25,7 +25,7 @@ namespace afi.university.infrastructure.Repositories.Base
         {
             _dbContext.Set<TEntity>().Remove(entity);
             await Task.CompletedTask;
-            return false;
+            return true;
         }
 
         public async Task<bool> UpdateAsync(Guid id, TEntity entity)
@@ -47,13 +47,18 @@ namespace afi.university.infrastructure.Repositories.Base
         }
 
         public async Task<IQueryable<TEntity>> GetByConditionAsync(Expression<Func<TEntity, bool>> expression, bool trackChanges)
-        {
-            //TODO: Make async
+        {            
             await Task.CompletedTask;
             return !trackChanges ? _dbContext.Set<TEntity>().Where(expression).AsNoTracking() : _dbContext.Set<TEntity>().Where(expression);
         }
 
         public abstract Task<TEntity> GetByIdAsync(Guid id, bool trackChanges);
 
+        public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> expression, bool trackChanges)
+        {
+            await Task.CompletedTask;
+            var entity = !trackChanges ? _dbContext.Set<TEntity>().Where(expression).AsNoTracking() : _dbContext.Set<TEntity>().Where(expression);
+            return entity!.Any();
+        }
     }
 }

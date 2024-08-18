@@ -11,20 +11,20 @@ namespace afi.university.infrastructure.Repositories
 
         public override async Task<User> GetByIdAsync(Guid userId, bool trackChanges)
         {
-            var user = await GetByConditionAsync(c => c.Id.Equals(userId), trackChanges);
-            return user!.SingleOrDefault(); //TODO: Deal with this
+            var users = await GetByConditionAsync(c => c.Id.Equals(userId), trackChanges);
+            return users.SingleOrDefault();
         }
 
         public async Task<User> GetUserLoginsAsync(string username, string password, bool trackChanges)
         {
-            var user = await GetByConditionAsync(c => c.Email!.Equals(username) && c.Password!.Equals(password), trackChanges);
-            return user!.SingleOrDefault(); //TODO: Deal with this
+            var users = await GetByConditionAsync(c => c.Email!.Equals(username) && c.Password!.Equals(password), trackChanges);
+            return users.SingleOrDefault();
         }
 
         public async Task<User> GetUserByEmailAsync(string email, bool trackChanges)
         {
-            var student = await GetByConditionAsync(c => c.Email!.Equals(email), trackChanges);
-            return student!.SingleOrDefault(); //TODO: Deal with this
+            var users = await GetByConditionAsync(c => c.Email!.Equals(email), trackChanges);
+            return users.SingleOrDefault();
         }
     }
 }

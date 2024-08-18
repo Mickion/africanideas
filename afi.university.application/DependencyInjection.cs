@@ -19,7 +19,7 @@ namespace afi.university.application
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ICourseService, CourseService>();
             services.AddTransient<IStudentService, StudentService>();
-            //services.AddTransient<IStudentCourseService, StudentService>();
+            services.AddSingleton<IPasswordHasher, PasswordHasher>();
             
             return services;
         }
