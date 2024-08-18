@@ -4,10 +4,10 @@ namespace afi.university.shared.DataTransferObjects.Requests
 {
     public class RegistrationRequest
     {
-        [Required(ErrorMessage = "FirstName is a required field.")]
+        [Required(ErrorMessage = "First Name is a required field.")]
         public string? FirstName { get; set; }
 
-        [Required(ErrorMessage = "LastName is a required field.")]
+        [Required(ErrorMessage = "Last Name is a required field.")]
         public string? LastName { get; set; }
 
         [Required(ErrorMessage = "Email is a required field.")]

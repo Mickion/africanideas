@@ -6,8 +6,9 @@ using System.Net.Http.Json;
 using System.Net;
 using afi.university.ui.Services.Interfaces.Authentication;
 using afi.university.shared.DataTransferObjects.Responses;
+using afi.university.ui.Services.Interfaces.HttpService;
 
-namespace afi.university.ui.Services.Implementations.Authentication
+namespace afi.university.ui.Services.Implementations.HttpService
 {
     public class HttpService : IHttpService
     {
@@ -68,15 +69,16 @@ namespace afi.university.ui.Services.Implementations.Authentication
             // auto logout on 401 response
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                _navigationManager.NavigateTo("logout");
-                return default;
+                var error = await response.Content.ReadAsStringAsync();
+                //_navigationManager.NavigateTo("logout");
+                throw new Exception(error);                
             }
 
             // throw exception on error response
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-                throw new Exception(error["message"]);
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception(error);
             }
 
             var results = await response.Content.ReadFromJsonAsync<T>();

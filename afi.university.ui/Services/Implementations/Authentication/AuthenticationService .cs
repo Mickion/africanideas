@@ -3,6 +3,7 @@ using afi.university.shared.DataTransferObjects.Responses;
 using afi.university.ui.Services.Interfaces.Authentication;
 using afi.university.shared.DataTransferObjects.Requests;
 using System.IdentityModel.Tokens.Jwt;
+using afi.university.ui.Services.Interfaces.HttpService;
 
 namespace afi.university.ui.Services.Implementations.Authentication
 {

@@ -1,78 +1,108 @@
 ﻿@page "/student/registration"
-@inject IStudentService StudentService
-@using System.ComponentModel.DataAnnotations
 @inject NavigationManager NavigationManager
+@inject IStudentService StudentService
+@inject IToastService toastService
 
-<div class="row">
-
-    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <div class="form-group">
-            <label>First Name</label>
-            <InputText @bind-Value="model!.FirstName" class="form-control" />
-            <ValidationMessage For="@(() => model.FirstName)" />
-        </div>
-        <div class="form-group">
-            <label>Last Name</label>
-            <InputText @bind-Value="model.LastName" class="form-control" />
-            <ValidationMessage For="@(() => model.LastName)" />
-        </div>
-        <div class="form-group">
-            <label>Email Address</label>
-            <InputText @bind-Value="model.Email" class="form-control" />
-            <ValidationMessage For="@(() => model.Email)" />
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <InputText @bind-Value="model.Password" type="password" class="form-control" />
-            <ValidationMessage For="@(() => model.Password)" />
-        </div>
-        <div class="row mt-3">
-            <div class="col-8"></div>
-            <div class="col-2 float-end">
-                <a href="/login" class="btn btn-secondary btn-md active float-end" role="button" aria-pressed="true">Cancel</a>
+<div class="row mt-5">
+    <div class="col-md-6 offset-md-3 mt-5">
+        <div class="alert alert-info">
+            <div class="row">
+                <h6 class="text-center">Afi University Registration</h6>
             </div>
-            <div class="col-2 float-end">
-                <button class="btn btn-primary float-end">
-                    @if (loading)
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <InputText @bind-Value="model!.FirstName" class="form-control" />
+                        <ValidationMessage For="@(() => model.FirstName)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <InputText @bind-Value="model.LastName" class="form-control" />
+                        <ValidationMessage For="@(() => model.LastName)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <InputText @bind-Value="model.Email" class="form-control" />
+                        <ValidationMessage For="@(() => model.Email)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <InputText @bind-Value="model.Password" type="password" class="form-control" />
+                        <ValidationMessage For="@(() => model.Password)" />
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-8"></div>
+
+                        @if (registered)
+                        {
+                            <div class="col-4 float-end">
+                                <a href="/login" class="btn btn-success btn-md active float-end" role="button" aria-pressed="true">SignIn</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-2 float-end">
+                                <a href="/login" class="btn btn-secondary btn-md active float-end" role="button" aria-pressed="true">Cancel</a>
+                            </div>
+                            <div class="col-2 float-end">
+                                <button class="btn btn-primary float-end">
+                                    Register
+                                </button>
+                            </div>
+                        }
+
+                    </div>
+
+
+                    @if (!string.IsNullOrEmpty(error))
                     {
-                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                        <div class="alert alert-danger mt-3 mb-0">@error</div>
                     }
-                    Registar
-                </button>
+                </EditForm>
             </div>
         </div>
-
-
-        @if (!string.IsNullOrEmpty(error))
-        {
-            <div class="alert alert-danger mt-3 mb-0">@error</div>
-        }
-    </EditForm>
+    </div>
 </div>
 
 @code {
     private bool loading;
+    private bool registered;
     private string? error;
-    private RegistrationRequest? model;
+    private RegistrationRequest? model = new RegistrationRequest();
 
     private async void HandleValidSubmit()
     {
         loading = true;
-        try
-        {            
-            var response = await StudentService.RegisterStudentAsync(model);
+        error = string.Empty;
 
-            //TODO: Add toast
-            if(!string.IsNullOrEmpty(response.StudentNumber))
-                NavigationManager.NavigateTo("/");
+        if (registered)
+        {
+            error = string.Empty;
+            NavigationManager.NavigateTo("/");
+        }
+
+        try
+        {
+            var response = await StudentService.RegisterStudentAsync(model!);
+            toastService.ShowSuccess($"You have successfully registered to Afi University. You student number is: {response.StudentNumber}.");
+
+            loading = false;
+            registered = true;
+            error = string.Empty;
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             error = ex.Message;
+            toastService.ShowError(ex.Message);
             loading = false;
+            registered = false;
             StateHasChanged();
         }
+        loading = false;
     }
-
 }

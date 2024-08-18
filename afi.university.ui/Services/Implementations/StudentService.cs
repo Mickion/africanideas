@@ -1,7 +1,7 @@
 ﻿using afi.university.shared.DataTransferObjects.Requests;
 using afi.university.shared.DataTransferObjects.Responses;
 using afi.university.ui.Services.Interfaces;
-using afi.university.ui.Services.Interfaces.Authentication;
+using afi.university.ui.Services.Interfaces.HttpService;
 
 namespace afi.university.ui.Services.Implementations
 {
@@ -44,6 +44,12 @@ namespace afi.university.ui.Services.Implementations
         public async Task<bool> EnrollCourseAsync(CourseRegistrationRequest courseRegistration)
         {
             var response = await _httpService.Post<bool>("/students/enroll/", courseRegistration);
+            return response;
+        }
+
+        public async Task<bool> DeRegisterCourseAsync(CourseRegistrationRequest courseRegistration)
+        {
+            var response = await _httpService.Post<bool>("/students/unenroll/", courseRegistration);
             return response;
         }
 

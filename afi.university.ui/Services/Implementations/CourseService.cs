@@ -1,7 +1,7 @@
 ﻿
 using afi.university.ui.Services.Interfaces;
-using afi.university.ui.Services.Interfaces.Authentication;
 using afi.university.shared.DataTransferObjects.Responses;
+using afi.university.ui.Services.Interfaces.HttpService;
 
 namespace afi.university.ui.Services.Implementations
 {

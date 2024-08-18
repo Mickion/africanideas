@@ -1,8 +1,11 @@
 using afi.university.ui;
 using afi.university.ui.Services.Implementations;
 using afi.university.ui.Services.Implementations.Authentication;
+using afi.university.ui.Services.Implementations.HttpService;
 using afi.university.ui.Services.Interfaces;
 using afi.university.ui.Services.Interfaces.Authentication;
+using afi.university.ui.Services.Interfaces.HttpService;
+using Blazored.Toast;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -11,6 +14,8 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+builder.Services.AddBlazoredToast();
 
 builder.Services
     .AddScoped<IAuthenticationService, AuthenticationService>()

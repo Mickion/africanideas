@@ -1,7 +1,9 @@
 ﻿@attribute [Authorize]
-@inject IStudentService StudentService
+
 @inject NavigationManager NavigationManager
 @inject IAuthenticationService AuthenticationService
+@inject IStudentService StudentService
+@inject IToastService toastService
 
 @if (loading || _student == null)
 {
@@ -68,46 +70,47 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        loading = true;        
+        try
+        {
+            await GetStudentAsync();
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+            loading = false;            
+            StateHasChanged();
+        }
+
+    }
+
+    private async Task GetStudentAsync()
+    {
+        loading = true;
         _student = await StudentService.GetStudentInformationAsync(new StudentRequest(AuthenticationService.User.Id));
         loading = false;
     }
 
     private async void ClickHandler(Guid courseId)
     {
-        // var course = _myCourses!.FirstOrDefault(x => x.Id == courseId);
-        // course!.Registered = !course.Registered;
+        try
+        {
+            var course = _student!.Courses!.FirstOrDefault(x => x.Id == courseId);
+            var response = await CourseRegistrationHelper.EnrollOrUnregisterCourseAsync(StudentService, AuthenticationService.User.Id, course!);
 
-        // if (course!.Registered)
-        // {
-        //     CourseRegistrationRequest courseRegistration = new()
-        //         {
-        //             StudentId = AuthenticationService.User.Id,
-        //             Name = course.Name,
-        //             Duration = course.Duration,
-        //         };
-        //     var response = await StudentService.RegisterToACourseAsync(courseRegistration);
-        //     StateHasChanged();
-        //     //LoadStudentDashboard();
-        // }
-        // else
-        // {   
-        //     CourseRegistrationRequest courseRegistration = new()
-        //         {
-        //             StudentId = AuthenticationService.User.Id,
-        //             Name = course.Name,
-        //             Duration = course.Duration,
-        //         };
-        //     var response = await StudentService.RegisterToACourseAsync(courseRegistration);
-        //     StateHasChanged();
-        //     //LoadStudentDashboard();
-        // }
-    }
+            if (response)
+            {
+                toastService.ShowSuccess($"Successfully {(course!.Registered ? "enrolled to" : "un-registered from")} ({course!.Name}) course.");
+                loading = false;
 
-    private async void LoadStudentDashboard()
-    {
-        // loading = true;
-        // _myCourses = await StudentService.GetRegisteredCoursesAsync(new StudentCoursesRequest() { StudentId = AuthenticationService.User.Id });
-        // loading = false;
+                await GetStudentAsync();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+            loading = false;
+            StateHasChanged();
+        }
     }
 }

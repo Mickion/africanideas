@@ -1,4 +1,4 @@
-﻿namespace afi.university.ui.Services.Interfaces.Authentication
+﻿namespace afi.university.ui.Services.Interfaces.HttpService
 {
     public interface IHttpService
     {

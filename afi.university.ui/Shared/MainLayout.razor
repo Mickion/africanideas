@@ -2,8 +2,9 @@
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
 
+<BlazoredToasts />
 
-<div class="page">
+<div class="page">   
     
     @* show side bar when logged in *@
     @if (AuthenticationService.User != null)

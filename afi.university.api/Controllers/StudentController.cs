@@ -27,7 +27,7 @@ namespace afi.university.api.Controllers
         /// <returns></returns>
         
         [HttpGet]
-        //[Authorize(Roles = "Admin, Lecture")]
+        [Authorize(Roles = "Admin, Lecture")]
         public async Task<ActionResult<IEnumerable<StudentResponse>>> GetAllStudentsAsync()
         {
             IEnumerable<StudentResponse> students;
@@ -57,7 +57,7 @@ namespace afi.university.api.Controllers
         /// <returns></returns>
 
         [HttpGet("{id:guid}")]
-        //[Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student")]
         public async Task<ActionResult<StudentResponse>> GetStudentCoursesAsync(Guid id)
         {
             StudentResponse student;
@@ -120,7 +120,7 @@ namespace afi.university.api.Controllers
         
         [HttpPost]
         [Route("enroll")]
-        //[Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student")]
         public async Task<ActionResult<bool>> EnrollCourseAsync([FromBody] CourseRegistrationRequest courseRegistrationRequest)
         {
             bool response;
@@ -162,7 +162,7 @@ namespace afi.university.api.Controllers
         
         [HttpPost]
         [Route("unenroll")]
-        //[Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student")]
         public async Task<ActionResult<bool>> UnregisterFromACourse([FromBody] CourseRegistrationRequest courseRegistrationRequest)
         {
             bool response;
