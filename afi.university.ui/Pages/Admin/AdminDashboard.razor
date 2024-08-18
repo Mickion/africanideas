@@ -13,6 +13,7 @@ else
             <thead>
                 <tr>
                     <th>Name</th>
+                    <th>NQF Level</th>
                     <th>Duration</th>
                 </tr>
             </thead>
@@ -21,6 +22,7 @@ else
                 {
                     <tr>
                         <td>@item.Name</td>
+                        <td>@item.NQFLevel</td>
                         <td>@item.Duration</td>
                     </tr>
                 }
@@ -31,20 +33,17 @@ else
     <div class="row" style="max-width:200px;">
         <a href="/admin/addcourse" class="btn btn-lg active oi oi-plus" role="button" aria-pressed="true">    Add Course</a>
     </div>
-    
-
-    
-    
+       
 }
 
 @code {
     private bool loading;
-    private IEnumerable<StudentCourses>? _courses;
+    private IEnumerable<CourseResponse>? _courses;
 
     protected override async Task OnInitializedAsync()
     {
         loading = true;
-        _courses = await CourseService.GetAllUniversityCourses();
+        _courses = await CourseService.GetAllUniversityCoursesAsync();
         loading = false;
     }
 }

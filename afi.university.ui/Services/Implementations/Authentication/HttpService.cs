@@ -4,8 +4,8 @@ using System.Text;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net;
-using afi.university.ui.Models;
 using afi.university.ui.Services.Interfaces.Authentication;
+using afi.university.shared.DataTransferObjects.Responses;
 
 namespace afi.university.ui.Services.Implementations.Authentication
 {
@@ -56,7 +56,7 @@ namespace afi.university.ui.Services.Implementations.Authentication
         private async Task<T> SendRequest<T>(HttpRequestMessage request)
         {
             // add jwt auth header if user is logged in and request is to the api url
-            var user = await _localStorageService.GetItem<User>("user");
+            var user = await _localStorageService.GetItem<LoginResponse>("user");
 
             //var isApiUrl = !request.RequestUri!.IsAbsoluteUri;
 
@@ -79,8 +79,10 @@ namespace afi.university.ui.Services.Implementations.Authentication
                 throw new Exception(error["message"]);
             }
 
-            
-            return await response.Content.ReadFromJsonAsync<T>();
+            var results = await response.Content.ReadFromJsonAsync<T>();
+
+
+            return results!;
         }
 
         #endregion

@@ -9,7 +9,7 @@
         <DataAnnotationsValidator />
         <div class="form-group">
             <label>First Name</label>
-            <InputText @bind-Value="model.FirstName" class="form-control" />
+            <InputText @bind-Value="model!.FirstName" class="form-control" />
             <ValidationMessage For="@(() => model.FirstName)" />
         </div>
         <div class="form-group">
@@ -52,17 +52,16 @@
 </div>
 
 @code {
-    private StudentRegistrationRequest model = new StudentRegistrationRequest();
     private bool loading;
-    private string error;
+    private string? error;
+    private RegistrationRequest? model;
 
     private async void HandleValidSubmit()
     {
         loading = true;
         try
-        {
-            model.Role = Roles.Student;
-            var response = await StudentService.RegisterToUniversity(model);
+        {            
+            var response = await StudentService.RegisterStudentAsync(model);
 
             //TODO: Add toast
             if(!string.IsNullOrEmpty(response.StudentNumber))

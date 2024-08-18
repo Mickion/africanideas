@@ -1,16 +1,21 @@
-﻿using afi.university.ui.Models;
+﻿using Microsoft.AspNetCore.Components;
+using afi.university.shared.DataTransferObjects.Responses;
 using afi.university.ui.Services.Interfaces.Authentication;
-using Microsoft.AspNetCore.Components;
+using afi.university.shared.DataTransferObjects.Requests;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace afi.university.ui.Services.Implementations.Authentication
 {
     public class AuthenticationService : IAuthenticationService
-    {
-        private IHttpService _httpService;
-        private NavigationManager _navigationManager;
-        private ILocalStorageService _localStorageService;
+    {        
+        private readonly IHttpService _httpService;
+        private readonly NavigationManager _navigationManager;
+        private readonly ILocalStorageService _localStorageService;
 
-        public User? User { get; private set; }
+        public LoginResponse? User {
+            get;
+            private set;
+        }
 
         public AuthenticationService(
             IHttpService httpService,
@@ -20,22 +25,31 @@ namespace afi.university.ui.Services.Implementations.Authentication
         {
             _httpService = httpService;
             _navigationManager = navigationManager;
-            _localStorageService = localStorageService;
+            _localStorageService = localStorageService;            
         }
 
-        public async Task Initialize()
+        public async Task InitializeAsync()
         {
             //TODO: Is browser storage best practise?
-            User = await _localStorageService.GetItem<User>("user");
+            User = await _localStorageService.GetItem<LoginResponse>("user");
+            if(User != null)
+            {
+                var jwtToken = new JwtSecurityToken(User.Token);
+                if (DateTime.UtcNow > jwtToken.ValidTo) await LogoutAysnc();                
+            }
+
         }
 
-        public async Task Login(string email, string password)
-        {
-            User = await _httpService.Post<User>("/user/login", new { email, password });
-            await _localStorageService.SetItem("user", User);
+        public async Task LoginAsync(string email, string password)
+        {                       
+            LoginRequest loginRequest = new(email, password);
+            User = await _httpService.Post<LoginResponse>("/User/Login", loginRequest);
+
+            if(User != null)
+                await _localStorageService.SetItem("user", User);
         }
 
-        public async Task Logout()
+        public async Task LogoutAysnc()
         {
             User = null;
             await _localStorageService.RemoveItem("user");

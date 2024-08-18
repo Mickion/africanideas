@@ -2,27 +2,32 @@
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
 
+
 <div class="page">
-    <div class="sidebar">
-        @if (AuthenticationService.User != null)
-        {
+    
+    @* show side bar when logged in *@
+    @if (AuthenticationService.User != null)
+    {
+        <div class="sidebar">
             <NavMenu />
-        }
-        
-    </div>
+        </div>      
+    }
 
     <main>
-        <div class="top-row px-4">
-            @if (AuthenticationService.User != null)
-            {
-                <div class="row">
-                    <div class="col-lg-6"><span>@AuthenticationService.User.Role.ToString()</span></div>
-                    <div class="col-lg-6"><a href="logout">LogOut</a></div>
-                </div>
-                
-            }
-            @* <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a> *@
-        </div>
+        @* show side bar when logged in *@
+        @if(AuthenticationService.User != null)
+        {
+            <div class="top-row px-4">
+                @if (AuthenticationService.User != null)
+                {
+                    <div class="row">
+                        <div class="col-lg-6"><span>@AuthenticationService.User.Role.ToString()</span></div>
+                        <div class="col-lg-6"><a href="logout">LogOut</a></div>
+                    </div>
+
+                }                
+            </div>
+        }
 
         <article class="content px-4">
             @Body

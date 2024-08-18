@@ -27,9 +27,9 @@ namespace afi.university.api.Controllers
         
         [HttpGet]
         //[Authorize(Roles = "Admin,Student")]
-        public async Task<ActionResult<IEnumerable<StudentCoursesResponse>>> GetAllUniversityCourses()
+        public async Task<ActionResult<IEnumerable<CourseResponse>>> GetAllUniversityCourses()
         {
-            IEnumerable<StudentCoursesResponse> courses;
+            IEnumerable<CourseResponse> courses;
             try
             {
                 courses = await _courseService.GetAllCoursesAsync();

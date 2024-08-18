@@ -43,14 +43,13 @@ namespace afi.university.application.Services.Implementation
             return true;
         }
 
-        public async Task<IEnumerable<StudentCoursesResponse>> GetAllCoursesAsync()
+        public async Task<IEnumerable<CourseResponse>> GetAllCoursesAsync()
         {
             var courses = await _repository.Courses.GetAllAsync(false);
-            if (courses == null)
-                throw new NotFoundException("There are not courses found.");
 
-            return _mapper.Map<ICollection<StudentCoursesResponse>>(courses);
-
+            return courses == null
+                ? throw new NotFoundException("There are not courses found.")
+                : (IEnumerable<CourseResponse>)_mapper.Map<ICollection<CourseResponse>>(courses);
         }
     }
 }

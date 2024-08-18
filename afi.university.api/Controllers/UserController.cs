@@ -25,7 +25,7 @@ namespace afi.university.api.Controllers
         /// <param name="loginRequest"></param>
         /// <returns></returns>
         [HttpPost(Name = "Login")]
-        public async Task<ActionResult<LoginResponse>> Login(LoginRequest loginRequest)
+        public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest loginRequest)
         {            
             //TODO: Implement exception middleware & catch InvalidCredentialsException there
             LoginResponse response;

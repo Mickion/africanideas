@@ -1,16 +1,21 @@
-﻿using afi.university.ui.Models;
+﻿using afi.university.shared.DataTransferObjects.Requests;
+using afi.university.shared.DataTransferObjects.Responses;
 
 namespace afi.university.ui.Services.Interfaces
 {
     public interface IStudentService
-    {        
-        Task<IEnumerable<StudentCourses>> GetRegisteredCoursesAsync(StudentCoursesRequest studentCoursesRequest);
+    {
+        Task<StudentResponse> GetStudentInformationAsync(StudentRequest studentRequest);
 
-        Task<IEnumerable<StudentCourses>> GetAllAvailableCourses();
+        Task<RegistrationResponse> RegisterStudentAsync(RegistrationRequest registrationRequest);
 
-        Task<StudentRegistrationResponse> RegisterToUniversity(StudentRegistrationRequest registrationRequest);
+        Task<bool> EnrollCourseAsync(CourseRegistrationRequest courseRegistration);
 
-        Task<bool> RegisterToACourseAsync(CourseRegistrationRequest courseRegistration);
-        Task<bool> DeRegisterToACourseAsync(CourseRegistrationRequest courseRegistration);
+        //Task<IEnumerable<StudentCourses>> GetAllAvailableCourses();
+
+
+
+
+        //Task<bool> DeRegisterToACourseAsync(CourseRegistrationRequest courseRegistration);
     }
 }

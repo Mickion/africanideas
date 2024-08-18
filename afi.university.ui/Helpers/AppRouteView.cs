@@ -15,7 +15,7 @@ namespace afi.university.ui.Helpers
         public IAuthenticationService? AuthenticationService { get; set; }
 
         protected override void Render(RenderTreeBuilder builder)
-        {
+        {           
             var authorize = Attribute.GetCustomAttribute(RouteData.PageType, typeof(AuthorizeAttribute)) != null;
             if (authorize && AuthenticationService!.User == null)
             {

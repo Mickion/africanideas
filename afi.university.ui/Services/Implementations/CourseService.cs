@@ -1,20 +1,19 @@
-﻿using afi.university.ui.Models;
+﻿
 using afi.university.ui.Services.Interfaces;
 using afi.university.ui.Services.Interfaces.Authentication;
+using afi.university.shared.DataTransferObjects.Responses;
 
 namespace afi.university.ui.Services.Implementations
 {
     public class CourseService : ICourseService
     {
         private readonly IHttpService _httpService;
+        public CourseService(IHttpService httpService) => _httpService = httpService;       
 
-        public CourseService(IHttpService httpService)
+        public async Task<IEnumerable<CourseResponse>> GetAllUniversityCoursesAsync()
         {
-            this._httpService = httpService;
-        }
-        public async Task<IEnumerable<StudentCourses>> GetAllUniversityCourses()
-        {
-            return await _httpService.Get<IEnumerable<StudentCourses>>("/Course/GetAllUniversityCourses");
+            var response =  await _httpService.Get<IEnumerable<CourseResponse>>("/courses");
+            return response;
         }
     }
 }

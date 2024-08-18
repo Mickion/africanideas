@@ -5,7 +5,7 @@ namespace afi.university.application.Services.Interfaces
 {
     public interface ICourseService
     {
-        Task<IEnumerable<StudentCoursesResponse>> GetAllCoursesAsync();
+        Task<IEnumerable<CourseResponse>> GetAllCoursesAsync();
 
         Task<bool> AddCourseAsync(CreateCourseRequest createCourseRequest);
 

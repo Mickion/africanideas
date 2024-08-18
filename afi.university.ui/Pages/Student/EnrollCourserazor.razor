@@ -17,9 +17,10 @@ else
             <thead>
                 <tr>
                     <th>Name</th>
+                    <th>NQF Level</th>
                     <th>Duration</th>
                     <th>Registered</th>
-                    <th>Actions</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +28,7 @@ else
                 {
                     <tr>
                         <td>@item.Name</td>
+                        <td>@item.NQFLevel</td>
                         <td>@item.Duration</td>
                         <td>
                             @if (item.Registered)
@@ -59,16 +61,26 @@ else
 
 @code {
     private bool loading;    
-    private IEnumerable<StudentCourses>? _courses;
+    private StudentResponse? _student;
+    private IEnumerable<CourseResponse>? _courses;
 
     protected override async Task OnInitializedAsync()
     {
         loading = true;
-        _courses = await CourseService.GetAllUniversityCourses();
+        _student = await StudentService.GetStudentInformationAsync(new StudentRequest(AuthenticationService.User.Id));
+        _courses = await CourseService.GetAllUniversityCoursesAsync();
+
+        foreach (var course in _courses)
+        {
+            if (_student.Courses!.Any(cos => cos.Id.Equals(course.Id)))
+            {
+                course.Registered = true;
+            }
+        }
         loading = false;
     }
 
-    private async void ClickHandler(int courseId)
+    private async void ClickHandler(Guid courseId)
     {
         var course = _courses!.FirstOrDefault(x => x.Id == courseId);
 
@@ -77,23 +89,24 @@ else
         if (course!.Registered)
         {
             CourseRegistrationRequest courseRegistration = new()
-                {
-                    StudentId = AuthenticationService.User.Id,
-                    Name = course.Name,
-                    Duration = course.Duration,
-                };
-            var response = await StudentService.RegisterToACourseAsync(courseRegistration);
+            {
+                StudentId = AuthenticationService.User.Id,
+                CourseId = course.Id
+            };
+
+            var response = await StudentService.EnrollCourseAsync(courseRegistration);
+
         }
-        else
-        {
-            CourseRegistrationRequest courseRegistration = new()
-                {
-                    StudentId = AuthenticationService.User.Id,
-                    Name = course.Name,
-                    Duration = course.Duration,
-                };
-            var response = await StudentService.RegisterToACourseAsync(courseRegistration);
-        }
+        // else
+        // {
+        //     CourseRegistrationRequest courseRegistration = new()
+        //         {
+        //             StudentId = AuthenticationService.User.Id,
+        //             Name = course.Name,
+        //             Duration = course.Duration,
+        //         };
+        //     var response = await StudentService.RegisterToACourseAsync(courseRegistration);
+        // }
 
     }
 }

@@ -1,9 +1,9 @@
-﻿using afi.university.ui.Models;
+﻿using afi.university.shared.DataTransferObjects.Responses;
 
 namespace afi.university.ui.Services.Interfaces
 {
     public interface ICourseService
     {
-        Task<IEnumerable<StudentCourses>> GetAllUniversityCourses();
+        Task<IEnumerable<CourseResponse>> GetAllUniversityCoursesAsync();
     }
 }

@@ -25,8 +25,8 @@ namespace afi.university.application.Common.Mappings
 
             CreateMap<CreateCourseRequest, Course>();
 
-            CreateMap<Course, StudentCoursesResponse>();
-            CreateMap<ICollection<Course>, ICollection<StudentCoursesResponse>>();
+            CreateMap<Course, CourseResponse>();
+            CreateMap<ICollection<Course>, ICollection<CourseResponse>>();
         }        
     }
 }
