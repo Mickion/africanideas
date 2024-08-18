@@ -27,7 +27,7 @@ namespace afi.university.api.Controllers
         /// <returns></returns>
         
         [HttpGet]
-        [Authorize(Roles = "Admin,Student")]
+        [Authorize(Roles = "Admin,Student,Lecture")]
         public async Task<ActionResult<IEnumerable<CourseResponse>>> GetAllUniversityCourses()
         {
             IEnumerable<CourseResponse> courses;
@@ -57,7 +57,7 @@ namespace afi.university.api.Controllers
         /// <returns></returns>
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Lecture")]
+        [Authorize(Roles = "Admin,Lecture")]
         public async Task<ActionResult<bool>> AddCourseAsync([FromBody] CreateCourseRequest createCourseRequest)
         {
             bool response;

@@ -1,7 +1,77 @@
 ﻿@page "/admin/addcourse"
+@inject NavigationManager NavigationManager
+@inject ICourseService CourseService
+@inject IToastService toastService
 
-<h3>AddCourse</h3>
+<div class="card-body">
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label>Course Name</label>
+            <InputText @bind-Value="model!.Name" class="form-control"></InputText>
+            <ValidationMessage For="@(() => model.Name)" />
+        </div>
+        <div>
+            <label>Course NQF Level</label>
+            <InputNumber @bind-Value="model.NQFLevel" class="form-control"></InputNumber>
+            <ValidationMessage For="@(() => model.NQFLevel)" />
+        </div>
+        <div>
+            <label>Duration (Years)</label>
+            <InputNumber @bind-Value="model.Duration" class="form-control"></InputNumber>
+            <ValidationMessage For="@(() => model.Duration)" />
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-8"></div>
+            <div class="col-2 float-end">
+                <a href="/" class="btn btn-secondary btn-md active float-end" role="button" aria-pressed="true">Cancel</a>
+            </div>
+            <div class="col-2 float-end">
+                <button class="btn btn-primary float-end">
+                    Save
+                </button>
+            </div>            
+        </div>
+
+
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger mt-3 mb-0">@error</div>
+        }
+    </EditForm>
+</div>
 
 @code {
+
+    private bool loading;
+    private bool registered;
+    private string? error;
+    private CreateCourseRequest? model = new CreateCourseRequest();
+
+    private async void HandleValidSubmit()
+    {
+        loading = true;
+        error = string.Empty;
+
+        try
+        {
+            var response = await CourseService.AddCourseAsync(model!);
+            toastService.ShowSuccess($"You have successfully added {model!.Name}");
+            loading = false;            
+            error = string.Empty;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            toastService.ShowError(ex.Message);
+            loading = false;
+            registered = false;
+            StateHasChanged();
+        }
+        loading = false;
+    }
 
 }

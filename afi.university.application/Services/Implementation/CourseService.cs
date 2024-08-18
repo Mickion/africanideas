@@ -28,9 +28,7 @@ namespace afi.university.application.Services.Implementation
         /// <exception cref="CourseAlreadyExistsException"></exception>
         public async Task<bool> AddCourseAsync(CreateCourseRequest createCourseRequest)
         {
-            var course = await _repository.Courses.GetByConditionAsync(c => c.Name!.Equals(createCourseRequest.Name), false);
-            var courseFound = course.SingleOrDefault();
-            if(courseFound != null)
+            if(await _repository.Courses.ExistsAsync(c => c.Name!.Equals(createCourseRequest.Name), trackChanges:false))
                 throw new CourseAlreadyExistsException(createCourseRequest.Name!);            
             
             var newCourse = _mapper.Map<Course>(createCourseRequest);
