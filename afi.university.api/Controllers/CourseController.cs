@@ -1,15 +1,12 @@
 ﻿using afi.university.application.Common.Exceptions;
-using afi.university.application.Models.Requests;
-using afi.university.application.Models.Responses;
 using afi.university.application.Services.Interfaces;
 using afi.university.shared.DataTransferObjects.Requests;
 using afi.university.shared.DataTransferObjects.Responses;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace afi.university.api.Controllers
 {
-    
+
     [Route("api/courses")]
     [ApiController]
     public class CourseController : ControllerBase

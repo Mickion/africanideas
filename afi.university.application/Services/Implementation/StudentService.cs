@@ -37,9 +37,8 @@ namespace afi.university.application.Services.Implementation
         /// <summary>
         /// Get list of all course registered for
         /// </summary>
-        /// <param name="studentId"></param>
+        /// <param name="studentRequest"></param>
         /// <returns></returns>
-        /// <exception cref="ApplicationException"></exception>
         public async Task<StudentResponse> GetStudentRegisteredCoursesAsync(StudentRequest studentRequest)
         {
             // get student
@@ -124,10 +123,9 @@ namespace afi.university.application.Services.Implementation
         /// <summary>
         /// Un-registers student from course(s)
         /// </summary>
-        /// <param name="studentId"></param>
-        /// <param name="courseIds"></param>
+        /// <param name="courseRegistrationRequest"></param>
         /// <returns></returns>
-        /// <exception cref="ApplicationException"></exception>
+        /// <exception cref="NotFoundException"></exception>
         public async Task<bool> UnregisterAsync(CourseRegistrationRequest courseRegistrationRequest)
         {
             // get student

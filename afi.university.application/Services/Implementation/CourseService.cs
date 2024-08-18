@@ -1,11 +1,8 @@
 ﻿using afi.university.domain.Entities;
 using afi.university.domain.Repositories.Base;
-using afi.university.application.Models.Requests;
-using afi.university.application.Models.Responses;
 using afi.university.application.Services.Interfaces;
 using afi.university.shared.DataTransferObjects.Requests;
 using afi.university.application.Common.Exceptions;
-using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using afi.university.shared.DataTransferObjects.Responses;
 
