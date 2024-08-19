@@ -12,5 +12,7 @@ namespace afi.university.ui.Services.Interfaces
         Task<bool> EnrollCourseAsync(CourseRegistrationRequest courseRegistration);
 
         Task<bool> DeRegisterCourseAsync(CourseRegistrationRequest courseRegistration);
+
+        Task<IEnumerable<StudentResponse>> GetAllStudentsAsync();
     }
 }

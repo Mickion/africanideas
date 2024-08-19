@@ -9,5 +9,7 @@ namespace afi.university.application.Services.Interfaces
 
         Task<bool> AddCourseAsync(CreateCourseRequest createCourseRequest);
 
+        Task<CourseStudentsResponse> GetCourseStudentsAsync(Guid courseId);
+
     }
 }

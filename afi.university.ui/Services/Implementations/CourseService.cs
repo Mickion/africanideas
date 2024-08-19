@@ -11,15 +11,33 @@ namespace afi.university.ui.Services.Implementations
         private readonly IHttpService _httpService;
         public CourseService(IHttpService httpService) => _httpService = httpService;
 
+        /// <summary>
+        /// Creates a new course
+        /// </summary>
+        /// <param name="createCourseRequest"></param>
+        /// <returns></returns>
         public async Task<bool> AddCourseAsync(CreateCourseRequest createCourseRequest)
         {
-            var response = await _httpService.Post<bool>("/courses/", createCourseRequest);
-            return response;
+            return await _httpService.Post<bool>("/courses/", createCourseRequest);            
         }
 
+        /// <summary>
+        /// Gets all available course
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<CourseResponse>> GetAllUniversityCoursesAsync()
         {
-            var response =  await _httpService.Get<IEnumerable<CourseResponse>>("/courses");
+            return await _httpService.Get<IEnumerable<CourseResponse>>("/courses");            
+        }
+
+        /// <summary>
+        /// Gets students registered per course
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <returns></returns>
+        public async Task<CourseStudentsResponse> GetCourseStudentsAsync(Guid courseId)
+        {
+            var response = await _httpService.Get<CourseStudentsResponse>($"/courses/{courseId}/students");
             return response;
         }
     }

@@ -1,4 +1,6 @@
 ﻿@attribute [Authorize]
+
+@inject IToastService toastService
 @inject ICourseService CourseService
 
 @if (loading)
@@ -15,15 +17,17 @@ else
                     <th>Name</th>
                     <th>NQF Level</th>
                     <th>Duration</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in _courses!)
+                @foreach (var course in _courses!)
                 {
                     <tr>
-                        <td>@item.Name</td>
-                        <td>@item.NQFLevel</td>
-                        <td>@item.Duration</td>
+                        <td>@course.Name</td>
+                        <td>@course.NQFLevel</td>
+                        <td>@course.Duration</td>
+                        <td><a href="/admin/coursestudents/@course.Id">View Students</a></td>
                     </tr>
                 }
             </tbody>
@@ -42,8 +46,18 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        loading = true;
-        _courses = await CourseService.GetAllUniversityCoursesAsync();
-        loading = false;
+        try
+        {
+            loading = true;
+            _courses = await CourseService.GetAllUniversityCoursesAsync();
+            loading = false;
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+            loading = false;
+            StateHasChanged();
+        }
+
     }
 }

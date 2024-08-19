@@ -8,5 +8,7 @@ namespace afi.university.ui.Services.Interfaces
         Task<IEnumerable<CourseResponse>> GetAllUniversityCoursesAsync();
 
         Task<bool> AddCourseAsync(CreateCourseRequest createCourseRequest);
+
+        Task<CourseStudentsResponse> GetCourseStudentsAsync(Guid courseId);
     }
 }

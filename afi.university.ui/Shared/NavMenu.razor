@@ -21,7 +21,7 @@
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="/admin/students">
-                    <span class="oi oi-plus" aria-hidden="true"></span> Students
+                    <span class="oi oi-people" aria-hidden="true"></span> Students
                 </NavLink>
             </div>
         }
@@ -29,11 +29,19 @@
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="/student/enroll">
-                    <span class="oi oi-plus" aria-hidden="true"></span> Courses
+                    <span class="oi oi-book" aria-hidden="true"></span> Courses
                 </NavLink>
             </div>
         }
-    
+        @if (AuthenticationService.User.Role.Equals(RolesResponse.Admin))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/admin/lectures/">
+                    <span class="oi oi-person" aria-hidden="true"></span> Lectures
+                </NavLink>
+            </div>
+        }
+
     </nav>
 </div>
 

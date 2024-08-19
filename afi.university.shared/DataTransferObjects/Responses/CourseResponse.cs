@@ -1,8 +1,11 @@
 ﻿namespace afi.university.shared.DataTransferObjects.Responses
 {
-    public record CourseResponse (Guid Id, string? Name, int NQFLevel, int Duration)
+    public class CourseResponse
     {
+        public Guid Id { get; set; }
+        public string? Name { get; set; }
+        public int NQFLevel { get; set; }
         public bool Registered { get; set; }
-        public CourseResponse() : this(default, default, default, default) { }
+        public int Duration { get; set; }        
     }
 }

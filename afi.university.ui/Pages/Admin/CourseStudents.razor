@@ -1,16 +1,16 @@
-﻿@page "/admin/students"
+﻿@page "/admin/coursestudents/{Id}"
 
 @attribute [Authorize]
 @inject IToastService toastService
-@inject IStudentService StudentService
+@inject ICourseService CourseService
 
-@if (_students == null)
+@if (_courseStudents == null)
 {
     <p class="align-content-center" style="text-align:center;"> No students registered for this course, yet! </p>
 }
 else
 {
-    <h5> Afi University Student(s) </h5>
+    <h5>@_courseStudents.Name Student(s) </h5>
 
     <table class="table small table-striped">
         <thead>
@@ -22,7 +22,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var student in _students!)
+            @foreach (var student in _courseStudents.Students!)
             {
                 <tr>
                     <td>@student.FirstName</td>
@@ -35,18 +35,26 @@ else
     </table>
 }
 
+
 @code {
+    [Parameter]
+    public string? Id { get; set; }
+
     private bool loading;
-    private IEnumerable<StudentResponse>? _students;
+    private CourseStudentsResponse? _courseStudents;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            loading = true;                
-            _students = await StudentService.GetAllStudentsAsync();
-            loading = false;
-        }        
+            if (!string.IsNullOrEmpty(Id))
+            {
+                loading = true;
+                Guid studentId = new Guid(Id);
+                _courseStudents = await CourseService.GetCourseStudentsAsync(studentId);
+                loading = false;
+            }
+        }
         catch (Exception ex)
         {
             toastService.ShowError(ex.Message);
@@ -54,4 +62,5 @@ else
             StateHasChanged();
         }
     }
+
 }

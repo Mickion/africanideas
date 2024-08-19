@@ -79,7 +79,39 @@ namespace afi.university.api.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Gets students that are registered for a course
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <returns></returns>
+        /// 
+        [HttpGet]
+        [Route("{courseId:guid}/students")]
+        [Authorize(Roles = "Admin,Lecture")]
+        public async Task<ActionResult<CourseStudentsResponse>> GetCourseStudents(Guid courseId)
+        {
+            CourseStudentsResponse courseStudents;
+            try
+            {
+                courseStudents = await _courseService.GetCourseStudentsAsync(courseId);
+            }
+            catch (CourseNotFoundException ex)
+            {
+                _logger.LogWarning("Failed getting course list of students {0} - ", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (StudentNotFoundException ex)
+            {
+                _logger.LogWarning("Failed getting course list of students {0} - ", ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Failed getting course list of students {0} - ", ex);
+                return BadRequest(ex.Message);
+            }
 
-
+            return courseStudents == null ? NotFound() : Ok(courseStudents);
+        }
     }
 }

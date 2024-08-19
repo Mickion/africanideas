@@ -1,6 +1,5 @@
 ﻿using afi.university.application.Common.Exceptions;
 using afi.university.application.Services.Interfaces;
-using afi.university.domain.Entities;
 using afi.university.shared.DataTransferObjects.Requests;
 using afi.university.shared.DataTransferObjects.Responses;
 using Microsoft.AspNetCore.Authorization;
